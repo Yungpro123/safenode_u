@@ -6,7 +6,7 @@
     <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
-  
+  <script src="/dashboard/actions.js"></script>
   <title>SafeNode — Access Your Account</title>
   <style>
     :root {
@@ -293,24 +293,7 @@
   togglePassword("togglePass1", "signupPassword");
   togglePassword("togglePass2", "loginPassword");
 
-  function showToast(msg, type="info") {
-    const t = document.createElement("div");
-    t.textContent = msg;
-    t.style.position = "fixed";
-    t.style.bottom = "30px";
-    t.style.left = "50%";
-    t.style.transform = "translateX(-50%)";
-    t.style.background = type === "error" ? "#ff4d4d" : type === "success" ? "#00a86b" : "#444";
-    t.style.color = "#fff";
-    t.style.padding = "12px 22px";
-    t.style.borderRadius = "8px";
-    t.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
-    t.style.fontSize = "14px";
-    t.style.zIndex = "9999";
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
-  }
-
+  
   function setLoading(btn, state, text) {
     if (state) {
       btn.disabled = true;
