@@ -1,0 +1,243 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />  
+  <title>SafeNode — Withdraw</title>  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />  
+  <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">  
+  <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">  
+  <link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">  
+  <style>  
+    * { box-sizing: border-box; font-family: "Inter", sans-serif; }  
+    body { margin: 0; background: linear-gradient(135deg, #ecfff5, #f9fdfc);  
+      display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #023020; }  
+    .container { background: #fff; border-radius: 22px; box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);  
+      width: 90%; max-width: 440px; padding: 25px 22px 35px; text-align: center; animation: fadeIn 0.4s ease; }  
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }  
+    h2 { color: #00a86b; margin-bottom: 8px; font-weight: 700; }  
+    p.subtext { color: #555; font-size: 14px; margin-bottom: 15px; }  
+    .balance { color: #444; font-size: 13px; margin-bottom: 15px; font-weight:700}  
+    .method-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }  
+    .method-btn { flex: 1; padding: 10px; border: 2px solid #00a86b; background: #fff; color: #00a86b;  
+      border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s; }  
+    .method-btn.active, .method-btn:hover { background: #00a86b; color: #fff; }  
+    .form { text-align: left; display: none; animation: slideIn 0.3s ease; }  
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }  
+    .form.active { display: block; }  
+    label { font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px; }  
+    input, select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc;  
+      margin-bottom: 16px; font-size: 14px; }  
+    .submit-btn { width: 100%; background: #00a86b; color: #fff; border: none; border-radius: 12px;  
+      padding: 12px; font-weight: 600; cursor: pointer; transition: background 0.3s; }  
+    .submit-btn:hover { background: #00945f; }  
+    .submit-btn:disabled { background: #aaa; cursor: not-allowed; }  
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;  
+      background: rgba(0,0,0,0.55); justify-content: center; align-items: center; z-index: 1000; }  
+    .modal { background: #fff; border-radius: 18px; padding: 25px 20px; text-align: center;  
+      width: 85%; max-width: 360px; box-shadow: 0 8px 25px rgba(0,0,0,0.25); animation: popIn 0.3s ease; }  
+    .modal h3 { color: #00a86b; font-size: 20px; font-weight: 700; margin-bottom: 10px; }  
+    .modal p { font-size: 14px; color: #444; margin-bottom: 20px; }  
+    .confirm-btn, .cancel-btn { border: none; border-radius: 10px; padding: 10px 20px; font-weight: 600;  
+      cursor: pointer; font-size: 14px; margin: 5px; transition: all 0.3s ease; }  
+    .confirm-btn { background: #00a86b; color: #fff; }  
+    .confirm-btn:hover { background: #00925e; }  
+    .cancel-btn { background: #ccc; color: #222; }  
+    .cancel-btn:hover { background: #bbb; }  
+    .footer { margin-top: 25px; font-size: 13px; color: #777; }  
+  </style>  
+</head>  
+<body>  
+  <div class="container">  
+    <h2>Withdraw Funds</h2>  
+    <p class="subtext">Select your preferred withdrawal method.</p>  
+    <p class="balance" id="balanceDisplay">Loading balances...</p>  
+  
+    <div class="method-selector">  
+      <button class="method-btn active" id="paystackBtn">Paystack (NGN)</button>  
+      <button class="method-btn" id="cryptoBtn">Crypto (USDT)</button>  
+    </div>  
+  
+    <div class="form active" id="paystackForm">  
+      <label>Bank Name</label>  
+      <input type="text" id="bankName" placeholder="e.g., Access Bank" />  
+      <label>Account Number</label>  
+      <input type="text" id="accountNumber" placeholder="10-digit account number" maxlength="10" />  
+      <label>Amount (NGN)</label>  
+      <input type="number" id="amountNGN" placeholder="Minimum ₦2000" />  
+      <button class="submit-btn" id="submitPaystack">Withdraw</button>  
+    </div>  
+  
+    <div class="form" id="cryptoForm">  
+      <label>USDT Wallet Address (TRON)</label>  
+      <input type="text" id="walletAddress" placeholder="Enter your USDT TRON wallet address" />  
+      <label>Amount (USDT)</label>  
+      <input type="number" id="amountUSDT" placeholder="Minimum 10 USDT" />  
+      <button class="submit-btn" id="submitCrypto">Withdraw</button>  
+    </div>  
+  
+    <div class="footer">SafeNode — Secure Withdrawals</div>  
+  </div>  
+  
+  <!-- Confirmation Modal -->  
+  <div class="modal-overlay" id="confirmOverlay">  
+    <div class="modal">  
+      <h3>Confirm Withdrawal</h3>  
+      <p id="confirmText">You are about to withdraw...</p>  
+      <button class="confirm-btn" id="confirmYes">Confirm</button>  
+      <button class="cancel-btn" id="confirmNo">Cancel</button>  
+    </div>  
+  </div>  
+  
+  <!-- Success Modal -->  
+  <div class="modal-overlay" id="successOverlay">  
+    <div class="modal">  
+      <h3 id="successTitle">✅ Withdrawal Submitted</h3>  
+      <p id="successMessage">Your withdrawal request has been received.</p>  
+      <button class="confirm-btn" id="successOk">OK</button>  
+    </div>  
+  </div>  
+  
+<script>  
+const paystackBtn = document.getElementById("paystackBtn");  
+const cryptoBtn = document.getElementById("cryptoBtn");  
+const paystackForm = document.getElementById("paystackForm");  
+const cryptoForm = document.getElementById("cryptoForm");  
+  
+const confirmOverlay = document.getElementById("confirmOverlay");  
+const successOverlay = document.getElementById("successOverlay");  
+const confirmText = document.getElementById("confirmText");  
+const confirmYes = document.getElementById("confirmYes");  
+const confirmNo = document.getElementById("confirmNo");  
+const successOk = document.getElementById("successOk");  
+const balanceDisplay = document.getElementById("balanceDisplay");  
+  
+let currentWithdrawal = null;  
+  
+// Switch method  
+paystackBtn.addEventListener("click", () => {  
+  paystackBtn.classList.add("active");  
+  cryptoBtn.classList.remove("active");  
+  paystackForm.classList.add("active");  
+  cryptoForm.classList.remove("active");  
+});  
+cryptoBtn.addEventListener("click", () => {  
+  cryptoBtn.classList.add("active");  
+  paystackBtn.classList.remove("active");  
+  cryptoForm.classList.add("active");  
+  paystackForm.classList.remove("active");  
+});  
+  
+// Fetch user balance  
+async function fetchBalance() {  
+  try {  
+    const userId = localStorage.getItem("ui");  
+    const res = await fetch(`/api/users/wallet/${userId}`, { method: "GET", credentials: "include" });  
+    const data = await res.json();  
+    if (data.success) {  
+      balanceDisplay.textContent = `Available: ${data.currency} ${data.balance}.00`;  
+    } else {  
+      balanceDisplay.textContent = "Could not fetch balances";  
+    }  
+  } catch (err) {  
+    balanceDisplay.textContent = "Error fetching balances";  
+    console.error(err);  
+  }  
+}  
+  
+// Paystack submit  
+document.getElementById("submitPaystack").addEventListener("click", () => {  
+  const bankName = document.getElementById("bankName").value.trim();  
+  const accountNumber = document.getElementById("accountNumber").value.trim();  
+  const amount = parseFloat(document.getElementById("amountNGN").value.trim());  
+  const id = localStorage.getItem("ui");  
+
+  if (!bankName || !accountNumber || !amount || !id) {  
+    return alert("Please fill all Paystack withdrawal details.");  
+  }  
+  if (amount < 2000) return alert("Minimum Paystack withdrawal is ₦2000.");  
+
+  currentWithdrawal = {  
+    id,  
+    amount,  
+    currency: "NGN",  
+    bankName,  
+    accountNumber  
+  };  
+
+  confirmText.textContent = `You are about to withdraw ${amount} NGN to ${bankName} | ${accountNumber}. Confirm?`;  
+  confirmOverlay.style.display = "flex";  
+});  
+
+// Crypto submit  
+document.getElementById("submitCrypto").addEventListener("click", () => {  
+  const walletAddress = document.getElementById("walletAddress").value.trim();  
+  const amount = parseFloat(document.getElementById("amountUSDT").value.trim());  
+  const id = localStorage.getItem("ui");  
+
+  if (!walletAddress || !amount || !id) return alert("Please fill all crypto withdrawal details.");  
+  if (amount < 10) return alert("Minimum Crypto withdrawal is 10 USDT.");  
+
+  currentWithdrawal = {  
+    id,  
+    amount,  
+    currency: "USDT",  
+    walletAddress  
+  };  
+
+  confirmText.textContent = `You are about to withdraw ${amount} USDT to wallet ${walletAddress}. Confirm?`;  
+  confirmOverlay.style.display = "flex";  
+});  
+
+// Confirm modal  
+confirmYes.addEventListener("click", async () => {  
+  confirmOverlay.style.display = "none";  
+  if (!currentWithdrawal) return;  
+
+  const submitButtons = [document.getElementById("submitPaystack"), document.getElementById("submitCrypto")];  
+  submitButtons.forEach(btn => btn.disabled = true);  
+
+  try {  
+    const token = localStorage.getItem('authToken');  
+    const url = currentWithdrawal.currency === "NGN" ? "/api/withdraw/request" : "/api/withdraw";  
+
+    const res = await fetch(url, {  
+      method: "POST",  
+      headers: {  
+        "Content-Type": "application/json",  
+        "Authorization": `Bearer ${token}`  
+      },  
+      body: JSON.stringify(currentWithdrawal)  
+    });  
+
+    const data = await res.json();  
+
+    if (data.success) {  
+      successOverlay.querySelector("#successTitle").textContent = "Withdrawal Submitted";  
+      successOverlay.querySelector("#successMessage").textContent = "Your withdrawal request has been received.";  
+    } else {  
+      successOverlay.querySelector("#successTitle").textContent = "❌ Withdrawal Failed";  
+      successOverlay.querySelector("#successMessage").textContent = data.message || "Failed to process withdrawal.";  
+    }  
+
+    successOverlay.style.display = "flex";  
+    await fetchBalance();  
+  } catch (err) {  
+    successOverlay.querySelector("#successTitle").textContent = "❌ Withdrawal Failed";  
+    successOverlay.querySelector("#successMessage").textContent = "Network or server error. Please try again.";  
+    successOverlay.style.display = "flex";  
+    console.error(err);  
+  } finally {  
+    submitButtons.forEach(btn => btn.disabled = false);  
+  }  
+});  
+
+// Cancel modal  
+confirmNo.addEventListener("click", () => confirmOverlay.style.display = "none");  
+successOk.addEventListener("click", () => successOverlay.style.display = "none");  
+
+// Initial balance fetch  
+fetchBalance();  
+</script>  
+</body>  
+</html>

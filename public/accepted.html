@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />    <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  
+  <title>SafeNode - Contract Accepted</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f4fdf7 0%, #f8fbff 100%);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .receipt-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 10px;
+    }
+
+    .logo img {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .logo span {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #00a86b;
+    }
+
+    .checkmark {
+      font-size: 80px;
+      color: #00bb55;
+      margin: 15px 0;
+    }
+
+    h2 { margin: 10px 0; color: #0b513f; font-weight: 700; }
+    p.subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
+
+    .details {
+      background: #f7f9fc;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: left;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .details p { margin: 6px 0; color: #333; }
+    .details b { color: #000; }
+
+    .share-info {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 20px;
+      word-wrap: break-word;
+    }
+
+    .share-info a {
+      color: #00bb55;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .share-info a:hover { text-decoration: underline; }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      background: #00a86b;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover { background: #009a47; }
+    .footer { margin-top: 25px; font-size: 12px; color: #aaa; }
+  </style>
+</head>
+
+<body>
+  <div class="receipt-container" id="receipt">
+    <div class="logo">
+      <img src="../logo.png" alt="SafeNode Logo" />
+      <span>SafeNode</span>
+    </div>
+
+    <h2 id="statusTitle">Loading...</h2>
+    <p class="subtitle" id="statusSubtitle">Please wait while we fetch your contract.</p>
+
+    <div class="details" id="receiptDetails">
+      <p><b>Contract ID:</b> —</p>
+      <p><b>Amount:</b> —</p>
+      <p><b>Status:</b> —</p>
+      <p><b>Date:</b> —</p>
+    </div>
+
+    <span class="share-info" id="shareInfo">
+      <a style="display:none" id="contractLink" href="#" target="_blank"></a>
+    </span>
+
+    <div class="actions" id="actions">
+      <button class="btn" id="downloadBtn">Download Receipt</button>
+    </div>
+
+    <p class="footer">Powered by SafeNode Escrow Services</p>
+  </div>
+
+  <script>
+    // 🧩 Detect backend automatically
+    
+
+    const params = new URLSearchParams(window.location.search);
+    const contractId = params.get("id");
+
+    const receiptDetails = document.getElementById("receiptDetails");
+    const statusTitle = document.getElementById("statusTitle");
+    const statusSubtitle = document.getElementById("statusSubtitle");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const contractLinkEl = document.getElementById("contractLink");
+    const actions = document.getElementById("actions");
+    const shareInfo = document.getElementById("shareInfo");
+
+    const contractLink = `${window.location.origin}/accepted?id=${contractId}`;
+
+    async function loadContract() {
+      if (!contractId) {
+        statusTitle.textContent = "Invalid Link";
+        statusSubtitle.textContent = "Missing contract ID in URL.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/contracts/${contractId}`);
+        const data = await res.json();
+
+        if (!data.success) throw new Error("Failed to fetch contract data.");
+        const c = data.data;
+
+        // 🧠 Currency formatting logic
+        let formattedAmount;
+        const amount = Number(c.amount).toLocaleString();
+
+        const cryptoCurrencies = ["USDT", "BTC", "ETH", "USDC"];
+        if (c.currency === "USD") formattedAmount = `$${amount}`;
+        else if (c.currency === "GBP") formattedAmount = `£${amount}`;
+        else if (c.currency === "EUR") formattedAmount = `€${amount}`;
+        else if (c.currency === "NGN") formattedAmount = `₦${amount}`;
+        else if (cryptoCurrencies.includes(c.currency)) formattedAmount = `${amount} ${c.currency}`;
+        else formattedAmount = `${amount} ${c.currency || ""}`;
+
+        // 🧾 Render details
+        receiptDetails.innerHTML = `
+          <p><b>Contract ID:</b> ${c._id}</p>
+          <p><b>Amount:</b> ${formattedAmount}</p>
+          <p><b>Status:</b> ${c.status ? c.status.charAt(0).toUpperCase() + c.status.slice(1) : 'Pending'}</p>
+          <p><b>Date:</b> ${new Date(c.createdAt).toLocaleString()}</p>
+        `;
+
+        contractLinkEl.textContent = contractLink;
+        contractLinkEl.href = contractLink;
+        contractLinkEl.style.display = "none";
+
+        switch (c.status) {
+          case "accepted":
+            statusTitle.textContent = "Contract Accepted";
+            statusSubtitle.textContent = "The escrow contract has been accepted successfully.";
+            break;
+          case "funded":
+            statusTitle.textContent = "Contract Funded";
+            statusSubtitle.textContent = "Funds are now securely held by SafeNode.";
+            break;
+          case "completed":
+            statusTitle.textContent = "Escrow Completed";
+            statusSubtitle.textContent = "This escrow transaction is successfully closed.";
+            break;
+          case "disputed":
+            statusTitle.textContent = "Dispute Raised";
+            statusSubtitle.textContent = "This contract is currently under review.";
+            break;
+          default:
+            statusTitle.textContent = "Pending Contract";
+            statusSubtitle.textContent = "Awaiting further action.";
+        }
+
+      } catch (err) {
+        console.error(err);
+        statusTitle.textContent = "Error Loading Contract";
+        statusSubtitle.textContent = "Please refresh or contact SafeNode support.";
+      }
+    }
+
+    // 📄 Download as PNG
+    downloadBtn.addEventListener("click", async () => {
+      actions.style.display = "none";
+      shareInfo.style.display = "none";
+
+      await html2canvas(document.getElementById("receipt"), {
+        scale: 3,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `SafeNode_Contract_${contractId}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+
+      actions.style.display = "flex";
+      shareInfo.style.display = "block";
+    });
+
+    loadContract();
+  </script>
+</body>
+</html>

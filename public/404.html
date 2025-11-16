@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>404 — Page not found • SafeNode</title>
+  <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #f6fbf8;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: #00a86b;
+      --accent-600: #00945f;
+      --glass: rgba(255,255,255,0.8);
+      --shadow: 0 10px 30px rgba(6, 17, 10, 0.06);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #f0fbf6 0%, var(--bg) 100%);
+      color:#06221a;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .container {
+      width:100%;
+      max-width:980px;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      align-items:center;
+    }
+
+    @media (max-width:900px){
+      .container{grid-template-columns:1fr; padding:0 8px}
+    }
+
+    .card {
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      min-height:260px;
+    }
+
+    .left {
+      padding:18px 24px;
+    }
+
+    .logo {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .logo .mark {
+      width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,var(--accent) 0%, var(--accent-600) 100%);
+      color:#fff;font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(0,168,107,0.18);
+    }
+    .logo span { font-weight:700; color: #023425; font-size:18px; letter-spacing: .2px }
+
+    .eyebrow { font-size:13px; color:var(--muted); margin-bottom:8px; font-weight:600 }
+
+    h1{
+      margin:6px 0 12px;
+      font-size:28px;
+      line-height:1.02;
+      color:#052c20;
+    }
+    p.lead {
+      margin:0 0 18px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px }
+    .btn {
+      display:inline-flex; align-items:center; gap:10px;
+      background:var(--accent); color:#fff; border:none; padding:10px 14px;
+      border-radius:10px; cursor:pointer; font-weight:700; font-size:14px; text-decoration:none;
+      box-shadow:0 6px 18px rgba(0,168,107,0.12);
+    }
+    .btn.secondary {
+      background:transparent; color:#0b513f; border:1px solid rgba(11,81,63,0.08);
+      box-shadow:none; font-weight:700;
+    }
+    .btn.ghost { background:transparent; color:var(--muted); border:1px solid #eee }
+
+    .small {
+      margin-top:18px; font-size:13px; color:var(--muted)
+    }
+
+    /* right column */
+    .panel {
+      background:var(--card);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+    .panel h3 { margin:0 0 8px; color:#063826; font-size:16px }
+    .search {
+      margin-top:12px;
+      display:flex; gap:10px; align-items:center;
+    }
+    .search input {
+      flex:1; padding:10px 12px; border-radius:10px; border:1px solid #e6eef0; font-size:14px;
+    }
+    .shortcut-list { text-align:left; margin-top:14px; font-size:14px }
+    .shortcut-list a { display:block; padding:10px 12px; border-radius:10px; color:#0b513f; text-decoration:none; margin-bottom:8px; border:1px solid #f1f6f3; background:#fbfffc }
+    .shortcut-list a small { display:block; color:var(--muted); font-weight:600 }
+
+    footer.help {
+      margin-top:18px; font-size:13px; color:var(--muted); text-align:center;
+    }
+
+    /* subtle illustration */
+    .illustration {
+      width:100%; height:180px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(180deg,#eaffef 0%, #f6fff9 100%); border:1px dashed #d6f1df;
+      margin-top:16px;
+    }
+    .icon-404 {
+      font-size:66px; color:var(--accent); font-weight:900; transform:translateY(-6px);
+    }
+
+    .report {
+      display:inline-flex; gap:8px; align-items:center; margin-top:12px; color:var(--muted);
+      font-size:13px;
+    }
+    .report a { color:var(--accent); text-decoration:none; font-weight:700 }
+  </style>
+</head>
+<body>
+  <main class="container" role="main">
+    <section class="card left" aria-labelledby="pageTitle">
+      <div class="logo" aria-hidden="true">
+        <div class="mark">SN</div>
+        <span>SafeNode</span>
+      </div>
+
+      <div class="eyebrow">Page not found</div>
+      <h1 id="pageTitle">We can’t find that page</h1>
+      <p class="lead">
+        Looks like the link you followed is broken, expired or the page was removed.
+        Don’t worry — you can return home, contact support, or try searching for what you need.
+      </p>
+
+      <div class="actions" role="group" aria-label="page actions">
+        <a class="btn" href="/" id="homeBtn" title="Go to homepage">🏠 Home</a>
+        <a class="btn secondary" href="/help" id="helpBtn" title="Open help center">💬 Help Center</a>
+        <button class="btn ghost" id="contactBtn" title="Contact support">✉️ Contact</button>
+      </div>
+
+      <div class="small">
+        Tip: If you typed the address, double-check the spelling. Or use the Help Center to get quick support.
+      </div>
+
+      <div class="illustration" aria-hidden="true">
+        <div>
+          <div class="icon-404">404</div>
+          <div style="text-align:center;color:var(--muted);margin-top:6px">Page not found</div>
+        </div>
+      </div>
+
+      <div class="report">
+        <span>Found a bug or bad link?</span>
+        <a href="/report-issue" id="reportLink">Report it</a>
+      </div>
+    </section>
+
+    <aside class="panel" aria-labelledby="helpTitle">
+      <h3 id="helpTitle">Need help finding something?</h3>
+
+      <form id="quickSearch" class="search" role="search" onsubmit="return false;">
+        <input id="searchInput" placeholder="Search docs, invoices, contracts..." aria-label="Search SafeNode" />
+        <button type="button" class="btn" id="searchBtn">Search</button>
+      </form>
+
+      <div class="shortcut-list" id="shortcuts">
+        <a href="/auth"><strong>Sign in</strong><small>Access your dashboard & contracts</small></a>
+        <a href="/contracts"><strong>My Contracts</strong><small>View and manage your escrows</small></a>
+        <a href="/dispute"><strong>Open a dispute</strong><small>Report issues with a contract</small></a>
+        <a href="/pricing"><strong>Fees & Pricing</strong><small>See SafeNode fees</small></a>
+      </div>
+
+      <div style="margin-top:10px">
+        <a href="/status" style="display:inline-block;font-size:13px;color:var(--muted)">System status</a>
+      </div>
+
+      <footer class="help" aria-hidden="true">
+        Still stuck? <a href="/contact" style="color:var(--accent);font-weight:700">Contact support</a> — we're happy to help.
+      </footer>
+    </aside>
+  </main>
+
+  <script>
+    // small client behaviors
+    document.getElementById('contactBtn').addEventListener('click', () => {
+      // open support modal or redirect
+      window.location.href = '/contact';
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', doSearch);
+    document.getElementById('searchInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    function doSearch(){
+      const q = document.getElementById('searchInput').value.trim();
+      if (!q) {
+        // gentle bounce
+        const input = document.getElementById('searchInput');
+        input.style.transition = 'transform .12s ease';
+        input.style.transform = 'translateX(6px)';
+        setTimeout(()=> input.style.transform = '', 120);
+        return;
+      }
+      // prefer redirecting to a help search page
+      window.location.href = `/help?search=${encodeURIComponent(q)}`;
+    }
+
+    // Attempt a helpful auto-check: show recent docs if present (demo)
+    (async function loadHelpful(){
+      try {
+        // If you have an endpoint to get quick links, replace this fetch
+        // const res = await fetch('/api/help/quicklinks'); const data = await res.json();
+        // demo: do nothing
+      } catch(e){}
+    })();
+  </script>
+</body>
+</html>

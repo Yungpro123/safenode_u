@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SafeNode — Dispute Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+      <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  <style>
+    :root{
+      --safenode-green: #00a86b;
+      --bg: #f3f7f6;
+      --muted: #7b7b7b;
+      --card-shadow: 0 6px 20px rgba(12,18,15,0.06);
+    }
+    *{box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    html,body{height:100%;margin:0;background:var(--bg);color:#111}
+
+    /* Top brand header (full width) */
+    .brand-header{
+      background:var(--safenode-green);
+      color:#fff;
+      padding:10px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.08);
+      position:relative;
+    }
+    .brand-left{
+      display:flex;align-items:center;gap:10px;
+    }
+    .back-btn{
+      background: rgba(255,255,255,0.12);
+      border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;height:36px;width:36px;display:inline-flex;align-items:center;justify-content:center;font-weight:600;
+    }
+    .brand-title{
+      font-weight:700;font-size:1rem;white-space:nowrap;
+    }
+    .brand-sub{
+      opacity:0.9;font-size:0.86rem;margin-left:auto;
+    }
+
+    /* in-app notification prompt (visible when permission not granted) */
+    .notify-prompt {
+      position: absolute;
+      right: 14px;
+      top: 10px;
+      background: rgba(255,255,255,0.12);
+      padding: 6px 8px;
+      border-radius: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .notify-prompt button {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: none;
+      padding: 6px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .notify-prompt small { color: rgba(255,255,255,0.9); font-size: 12px; opacity: 0.95; }
+
+    /* Centering container like WhatsApp Web */
+    .stage{
+      display:flex;
+      justify-content:center;
+      width:100%;
+      padding:12px; /* small top/bottom breathing room */
+    }
+
+    .chat-card{
+      width:100%;
+      max-width:1000px; /* expands but constrained */
+      display:flex;
+      flex-direction:column;
+      border-radius:12px;
+      overflow:hidden;
+      background:transparent; /* header inside card will be white area */
+      gap:0;
+    }
+
+    /* Chat inner white card */
+    .chat-inner{
+      background:#fff;
+      border-radius:10px;
+      box-shadow:var(--card-shadow);
+      display:flex;
+      flex-direction:column;
+      height:calc(100vh - 790px); /* fits inside viewport leaving brand header + composer */
+      min-height:320px;
+      max-height:calc(100vh - 709px);
+      overflow:hidden;
+    }
+
+    /* inner header with dispute title (inside centered card) */
+    .chat-header{
+      padding:10px 12px;
+      border-bottom:1px solid #f0f2f3;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.98), #fff);
+    }
+    .chat-title{
+      font-weight:700;font-size:0.98rem;color:#111;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .chat-sub{
+      font-size:0.82rem;color:#6b6b6b;margin-left:8px;opacity:0.95;
+    }
+
+    /* messages area */
+    .messages{
+      flex:1;
+      overflow-y:auto;
+      padding:10px;
+      display:flex;
+      flex-direction: column;
+      gap:6px;
+      height:67px;
+      background: linear-gradient(180deg,#ffffff 0%, #fbfefe 100%);
+    }
+
+    /* rows and bubbles */
+    .row{display:flex;align-items:flex-end;gap:8px}
+    .row.left{justify-content:flex-start}
+    .row.right{justify-content:flex-end}
+
+    .bubble{
+      max-width:74%;
+      padding:9px 12px;
+      border-radius:16px;
+      font-size:0.92rem;
+      line-height:1.3;
+      word-break:break-word;
+      box-shadow:0 1px 6px rgba(0,0,0,0.04);
+    }
+
+    /* my message */
+    .bubble.me{
+      background:#00a86b;
+      color:white;
+      border-bottom-right-radius:8px;
+      border-bottom-left-radius:16px;
+      border-top-right-radius:12px;
+    }
+    /* other message */
+    .bubble.other{
+      background:#ffffff;
+      color:#111;
+      border:1px solid #eef2f5;
+      border-bottom-left-radius:8px;
+      border-bottom-right-radius:16px;
+      border-top-left-radius:12px;
+    }
+    /* admin/system */
+    .bubble.admin{
+      background:#fff9eb;color:#444;font-style:italic;align-self:center;max-width:72%;
+    }
+
+    .role{font-weight:600;font-size:0.75rem;color:#4a4a4a;margin-bottom:4px;opacity:0.85}
+
+    /* thumbnails */
+.thumb {
+  margin-top: 8px;
+  border-radius: 14px;
+  max-width: 200px; /* larger image width */
+  max-height: 200px; /* larger image height */
+  width: auto;
+  height: auto;
+  object-fit: contain; /* keeps aspect ratio visible */
+  display: block;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.thumb:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+ 
+    /* composer area (outside inner card) - compact */
+    .composer-wrap{
+      position:fixed;
+      bottom:0;
+      background:transparent;padding:10px;width:98%;display:flex;justify-content:center;
+    }
+    .composer{
+      width:100%;
+      max-width:1000px;
+      display:flex;flex-direction:column;gap:6px;
+    }
+    .composer-inner{
+      background:#fff;border-radius:12px;padding:8px 10px;border:1px solid #eef2f3;display:flex;align-items:center;gap:8px;
+      box-shadow:0 6px 20px rgba(12,18,15,0.02);
+    }
+    textarea{
+      flex:1;resize:none;border:none;outline:none;height:40px;padding:8px 10px;border-radius:10px;font-size:0.95rem;background:transparent;
+      color:black;
+    }
+    .file-btn{background:transparent;border:none;font-size:18px;cursor:pointer;padding:6px}
+    .send-btn{background:var(--safenode-green);color:#fff;border:none;padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer}
+
+    /* image preview row (small) */
+    .preview-row{display:flex;gap:8px;align-items:center;padding:0 6px 6px 6px}
+    .preview-thumb{height:70px;border-radius:8px;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+    .remove-preview{background:transparent;border:none;color:#999;font-size:18px;cursor:pointer}
+
+    /* modal */
+    #imageModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;z-index:1400;padding:18px}
+    #imageModal .frame{max-width:1100px;width:100%;max-height:92vh;display:flex;align-items:center;justify-content:center;position:relative}
+    #imageModal img{max-width:100%;max-height:90vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.45)}
+    #imageModal .close{position:absolute;top:-10px;right:-10px;background:rgba(255,255,255,0.12);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    /* mobile tweaks */
+    @media(max-width:840px){
+      .chat-inner{height:calc(100vh - 160px);max-height:calc(100vh - 120px)}
+      .thumb{max-width:140px;max-height:100px}
+    }
+    @media(max-width:520px){
+      .stage{padding:6px}
+      .chat-inner{height:calc(100vh - 170px)}
+  .thumb {
+    max-width: 500px;
+    max-height: 500px;
+  }
+      .brand-title{font-size:0.95rem}
+    }
+  </style>
+</head>
+<body>
+  <!-- Full-width brand header -->
+  <div class="brand-header">
+    <div class="brand-left">
+      <button class="back-btn" onclick="window.history.back()" title="Back">←</button>
+      <div>
+        <div class="brand-title">SafeNode Dispute Chat</div>
+        <div style="font-size:0.78rem;opacity:0.95">Secure escrow conversation</div>
+      </div>
+    </div>
+
+    <div class="brand-sub" id="brandSide">Connected</div>
+
+    <!-- in-app notification prompt (hidden when permission granted) -->
+
+  </div>
+
+  <!-- Centered stage -->
+  <div class="stage">
+    <div class="chat-card" role="main">
+      <div class="chat-inner">
+        <!-- inner header with dispute title -->
+        <div class="chat-header">
+          <div style="display:flex;flex-direction:column;">
+            <div class="chat-title" id="contractTitle">Loading dispute…</div>
+            <div class="chat-sub" id="chatSub" style="display:none"></div>
+          </div>
+        </div>
+
+        <!-- messages -->
+        <div class="messages" id="chatBox">
+          <p style="text-align:center;color:#9aa0a6;font-size:0.95rem;margin-top:18px">Loading messages…</p>
+        </div>
+                <p style="margin-bottom:65px;background:transparent"></p>
+
+      </div>
+
+      <!-- composer outside inner card but centered -->
+      <div class="composer-wrap">
+        <div class="composer">
+          <div class="preview-row" id="previewContainer" style="display:none">
+            <img id="previewThumb" class="preview-thumb" src="" alt="preview">
+            <button id="removePreview" class="remove-preview" title="Remove">×</button>
+          </div>
+
+          <div class="composer-inner">
+            <textarea id="messageInput" placeholder="Type a message"></textarea>
+            <input id="image" type="file" accept="image/*" style="display:none">
+            <button class="file-btn" title="Attach" onclick="document.getElementById('image').click()">
+              📎
+            </button>
+            <button id="sendBtn" class="send-btn" type="button">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- image modal -->
+  <div id="imageModal" onclick="closeModalOnOutside(event)">
+    <div class="frame">
+      <button class="close" id="closeModal" onclick="closeModal()">×</button>
+      <img id="modalImg" src="" alt="Full view">
+    </div>
+  </div>
+
+  <script>
+    // === CONFIG ===
+    const API_BASE = "/api/disputes";
+    const contractId = new URLSearchParams(window.location.search).get("contract");
+    const userId = localStorage.getItem("ui");
+    const POLL_INTERVAL = 2500;
+
+    let senderRole = null;
+    let disputeId = null;
+    let imageBase64 = null;
+    let pollTimer = null;
+    let lastChecksum = null;
+    let lastMessageCount = 0;
+
+    // Request notification permission immediately on load, plus show UI prompt if browser blocks it
+    function requestNotificationPermissionImmediate() {
+      // Show in-app enable button if permission is default or denied
+      try {
+        if (!("Notification" in window)) return; // not supported
+        const promptEl = document.getElementById('notifyPrompt');
+        const enableBtn = document.getElementById('enableNotifyBtn');
+
+        // If permission is default try requesting now (may be blocked by browser without user gesture)
+        if (Notification.permission === 'default') {
+          // Try requesting once
+          Notification.requestPermission().then(permission => {
+            // hide prompt if granted
+            if (permission === 'granted') {
+              promptEl.style.display = 'none';
+            } else {
+              // show in-app prompt so user can tap to allow (some browsers need gesture)
+              promptEl.style.display = 'flex';
+            }
+          }).catch(() => {
+            promptEl.style.display = 'flex';
+          });
+        } else if (Notification.permission === 'granted') {
+          promptEl.style.display = 'none';
+        } else {
+          // denied - show prompt so user knows notifications are disabled (they must change browser settings)
+          promptEl.style.display = 'flex';
+        }
+
+        enableBtn.onclick = () => {
+          // explicit user gesture - should reliably open the permission dialog
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              promptEl.style.display = 'none';
+            } else {
+              // remain visible so user can try again later
+              promptEl.style.display = 'flex';
+            }
+          }).catch(() => {
+            // ignore errors
+          });
+        };
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // Build a short preview text (max 80 chars)
+    function buildPreview(msg) {
+      if (!msg) return '';
+      if (msg.imageUrl && !msg.message) return '📎 Image';
+      const text = (msg.message || '').trim();
+      if (!text) return msg.imageUrl ? '📎 Image' : '';
+      return text.length > 80 ? text.slice(0, 77) + '...' : text;
+    }
+
+    // Show system/browser notification when tab is hidden
+    function showNotificationForMessage(msg) {
+      try {
+        if (!("Notification" in window)) return;
+        if (Notification.permission !== "granted") return;
+        if (!document.hidden) return; // only notify when tab is not focused
+
+        const sender = msg.senderName || msg.senderRole || 'SafeNode';
+        const body = buildPreview(msg) || 'New message';
+        const options = { body, icon: '/favicon.ico' };
+        new Notification(`${sender}`, options);
+        // We rely on system notification sound (no custom audio)
+      } catch (e) {
+        // fail silently
+      }
+    }
+
+    // small helper to compute checksum to avoid rerendering identical sets
+    function checksumMessages(messages){
+      return messages.map(m => (m._id||m.id||'') + '|' + (m.updatedAt||m.createdAt||'')).join('||');
+    }
+
+    // identify role (keeps your backend call intact)
+    async function identifyUserRole(){
+      try{
+        updateBrandStatus('Checking...');
+        requestNotificationPermissionImmediate(); // try to request immediately
+        const res = await fetch(`${API_BASE}/identify/${contractId}`, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ userId })
+        });
+        const data = await res.json();
+        if(!data.success){
+          alert('Unauthorized access');
+          window.location.href = '/dashboard.html';
+          return;
+        }
+        senderRole = data.role;
+        startPolling();
+        await loadDispute(); // initial load
+      }catch(err){
+        console.error('identifyUserRole',err);
+        updateBrandStatus('Offline');
+      }
+    }
+
+    async function loadDispute(){
+      try{
+        const res = await fetch(`${API_BASE}/${contractId}`);
+        const data = await res.json();
+        if(!data.success) return;
+        disputeId = data.dispute._id;
+        document.getElementById('contractTitle').textContent = 'Contract Title :'  + ' ' + data.dispute.contractTitle || 'Dispute';
+        const messages = data.dispute.messages || [];
+
+        // detect new messages and notify accordingly
+        const newCount = messages.length;
+        if (newCount > lastMessageCount) {
+          // determine last message(s) (slice from previous count)
+          const newly = messages.slice(Math.max(0, lastMessageCount));
+          if (newly && newly.length) {
+            const latest = newly[newly.length - 1];
+            // Avoid notifying for messages that are sent by user themselves
+            const isMine = (latest.senderId && String(latest.senderId) === String(userId)) || (latest.senderRole && senderRole && latest.senderRole === senderRole && !latest.senderId);
+            if (!isMine) {
+              showNotificationForMessage(latest);
+            }
+          }
+        }
+
+        // render only when changed
+        const cs = checksumMessages(messages);
+        if(cs !== lastChecksum){
+          lastChecksum = cs;
+          renderMessages(messages);
+        }
+
+        lastMessageCount = messages.length;
+        updateBrandStatus('Online');
+      }catch(err){
+        console.error('loadDispute',err);
+        updateBrandStatus('Offline');
+      }
+    }
+
+    function startPolling(){
+      stopPolling();
+      pollTimer = setInterval(loadDispute, POLL_INTERVAL);
+    }
+    function stopPolling(){ if(pollTimer) clearInterval(pollTimer); pollTimer = null; }
+
+    // Render messages - user messages to the right, others to left
+    function renderMessages(messages) {
+  const chatBox = document.getElementById('chatBox');
+  const composer = document.querySelector('.composer-inner');
+  const messageInput = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  
+  chatBox.innerHTML = '';
+  if (!messages.length) {
+    const p = document.createElement('p');
+    p.style.textAlign = 'center';
+    p.style.color = '#9aa0a6';
+    p.style.fontSize = '0.95rem';
+    p.style.marginTop = '12px';
+    p.textContent = 'No messages yet.';
+    chatBox.appendChild(p);
+  } else {
+    messages.forEach(msg => {
+      const isMine = (msg.senderId && String(msg.senderId) === String(userId)) ||
+                     (msg.senderRole && senderRole && msg.senderRole === senderRole && !msg.senderId);
+      const row = document.createElement('div');
+      row.className = 'row ' + (isMine ? 'right' : 'left');
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + (msg.senderRole === 'admin'
+        ? 'admin'
+        : (isMine ? 'me' : 'other'));
+
+      // Role label
+      if (msg.senderRole) {
+        const roleEl = document.createElement('div');
+        roleEl.className = 'role';
+        if (msg.senderRole === 'admin') {
+          roleEl.textContent = 'SafeNode Admin';
+        } else if (!isMine) {
+          roleEl.textContent = (msg.senderName || msg.senderRole || '').toUpperCase();
+        }
+        if (msg.senderRole === 'admin' || !isMine) {
+          bubble.appendChild(roleEl);
+        }
+      }
+
+      // Message text
+      if (msg.message) {
+        const text = document.createElement('div');
+        text.innerHTML = escapeHtml(msg.message).replace(/\n/g, '<br>');
+        bubble.appendChild(text);
+      }
+
+      // Image
+      if (msg.imageUrl) {
+        const img = document.createElement('img');
+        img.src = msg.imageUrl;
+        img.className = 'thumb';
+        img.alt = 'Attachment';
+        img.onclick = () => openModal(msg.imageUrl);
+        bubble.appendChild(img);
+      }
+
+      row.appendChild(bubble);
+      chatBox.appendChild(row);
+    });
+  }
+
+  // scroll to bottom
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // === message count logic ===
+  const myMessages = messages.filter(m => m.senderRole === senderRole);
+  const myCount = myMessages.length;
+  const remaining = 1000 - myCount;
+
+  const infoElId = 'message-limit-info';
+  let infoEl = document.getElementById(infoElId);
+
+  if (!infoEl) {
+    infoEl = document.createElement('div');
+    infoEl.id = infoElId;
+    infoEl.style.textAlign = 'center';
+    infoEl.style.fontSize = '0.85rem';
+    infoEl.style.marginTop = '6px';
+    infoEl.style.color = '#777';
+    composer.parentElement.appendChild(infoEl);
+  }
+
+}
+
+function attachComposerEvents() {
+  const fileInput = document.getElementById('image');
+  const previewContainer = document.getElementById('previewContainer');
+  const previewThumb = document.getElementById('previewThumb');
+  const removePreviewBtn = document.getElementById('removePreview');
+  const sendBtn = document.getElementById('sendBtn');
+
+  fileInput.addEventListener('change', () => {
+    const f = fileInput.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      imageBase64 = reader.result.split(',')[1];
+      previewThumb.src = reader.result;
+      previewContainer.style.display = 'flex';
+    };
+    reader.readAsDataURL(f);
+  });
+
+  removePreviewBtn.addEventListener('click', () => {
+    imageBase64 = null;
+    previewThumb.src = '';
+    previewContainer.style.display = 'none';
+    fileInput.value = '';
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+}
+
+    // send message
+    async function sendMessage(){
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      if(!message && !imageBase64) return;
+
+      const sendBtn = document.getElementById('sendBtn');
+      sendBtn.disabled = true; sendBtn.style.opacity = 0.7;
+
+      try{
+        const res = await fetch(`${API_BASE}/${disputeId}/message`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ senderRole, message, imageBase64 })
+        });
+        const data = await res.json();
+        if(data.success){
+          input.value = '';
+          imageBase64 = null;
+          hidePreview();
+          if(data.dispute && data.dispute.messages){
+            lastChecksum = checksumMessages(data.dispute.messages);
+            renderMessages(data.dispute.messages);
+          } else {
+            loadDispute();
+          }
+        } else {
+          console.warn('send failed', data);
+        }
+      }catch(err){
+        console.error('sendMessage',err);
+      }finally{
+        sendBtn.disabled = false; sendBtn.style.opacity = 1;
+      }
+    }
+
+    // image preview & upload
+    const fileInput = document.getElementById('image');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewThumb = document.getElementById('previewThumb');
+    const removePreviewBtn = document.getElementById('removePreview');
+
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        imageBase64 = reader.result.split(',')[1];
+        previewThumb.src = reader.result;
+        previewContainer.style.display = 'flex';
+      };
+      reader.readAsDataURL(f);
+    });
+
+    removePreviewBtn.addEventListener('click', hidePreview);
+    function hidePreview(){
+      imageBase64 = null;
+      previewThumb.src = '';
+      previewContainer.style.display = 'none';
+      fileInput.value = '';
+    }
+
+    // modal
+    function openModal(src){
+      document.getElementById('modalImg').src = src;
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+    function closeModal(){
+      document.getElementById('imageModal').style.display = 'none';
+      document.getElementById('modalImg').src = '';
+    }
+    function closeModalOnOutside(e){
+      if(e.target.id === 'imageModal') closeModal();
+    }
+    try { document.getElementById('closeModal').addEventListener('click', closeModal); } catch(e){}
+
+    // brand status helper
+    function updateBrandStatus(txt){
+      document.getElementById('brandSide').textContent = txt || '';
+    }
+
+    // basic html escape
+    function escapeHtml(unsafe){
+      return String(unsafe).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+    }
+
+    // keyboard shortcuts
+    document.getElementById('messageInput').addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+    // init
+    identifyUserRole();
+
+    // pause polling when hidden (kept active); refresh on focus
+    document.addEventListener('visibilitychange', () => {
+      if(!document.hidden) loadDispute();
+    });
+    window.addEventListener('beforeunload', () => stopPolling());
+  </script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SafeNode Dashboard</title>
+      <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="/dashboard/actions.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="/dashboard/style.css">
+</head>
+<body>
+  
+ <div id="loader">
+  <div class="spinner"></div>
+</div>
+  <!-- top-right menu button -->
+  <button class="menu-toggle" id="menuToggle">☰ Menu</button>
+
+  <!-- sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div>
+      <div class="logo">
+        <img src="../logo.png" alt="SafeNode Logo">
+        <h1>SafeNode</h1>
+      </div>
+      <nav class="menu" aria-label="Main navigation">
+        <a href="#" class="active" id="dashboardLink">Dashboard</a>
+        <a href="#" id="walletLink">Wallet</a>
+        <a href="#" id="disputeLink">Disputes</a>
+  <!---      <a href="#" id="settingsLink">Settings</a>    --!> 
+        <a href="/help" id="help">help</a>
+      </nav>
+    </div>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </aside>
+
+  <!-- overlay for sidebar -->
+  <div class="overlay" id="overlay"></div>
+
+  <main class="main" id="main">
+    <!-- DASHBOARD -->
+    <section id="dashboardSection">
+      <p>Welcome back, <strong>User</strong></p>
+  <div id="display" style="
+  font-size:16px;
+  font-weight:700;
+  color:#00a86b;
+  text-align:left;
+  margin-top:6px;
+  min-height:20px;
+  transition:opacity 0.6s ease;
+"></div>
+             <button style="float:right;color:#00a86b;margin-right:18px;margin-top:43px;height:37px;border-radius:15px;border:none;background:white;font-weight:700;padding:7px" id="depositBtn">+ Deposit</button>
+        <div class="wallet-cardmain"><h4 style="margin-bottom:0;margin-top:0.9px;font-size:15px">Current Balance</h4>
+  <div style="display:inline; justify-content:center">
+        <span style="font-weight:700;font-size:25px;" id="walletBalanc">₦450,000</span>
+        </div>
+        </div>
+
+      <div class="card-grid">
+        <div class="card"><h4>Active Escrows</h4><h2>3</h2></div>
+        <div class="card"><h4>Completed Deals</h4><h2 >9</h2></div>
+      </div>
+
+      <a href="/contract" class="new-escrow-btn">+ Start new contract</a>
+
+      <div class="active-escrows" id="escrowList">
+        <h5 style="margin-top:18px;color:black;font-size:16px">Active Escrow Contracts</h5>
+
+        <!-- sample escrow cards with data attributes -->
+        <div class="escrow-card" data-id="ESC001"
+             data-title="UI Design for App"
+             data-amount="75,000"
+             data-currency="NGN"
+             data-buyer="john@mail.com"
+             data-seller="jane@mail.com"
+             data-started="20 Oct 2025"
+             data-status="Active">
+          <div>
+            <div class="escrow-title">UI Design for App</div>
+                      <span class="status-badge">Active</span>
+            <div class="escrow-meta">₦75,000 • Buyer: john@mail.com • Seller: jane@mail.com</div>
+          </div>
+
+        </div>
+
+        <div class="escrow-card" data-id="ESC002"
+             data-title="Full-Stack Web App Development"
+             data-amount="250,000"
+             data-currency="NGN"
+             data-buyer="david@mail.com"
+             data-seller="sofia@mail.com"
+             data-started="12 Oct 2025"
+             data-status="Active">
+          <div>
+            <div class="escrow-title">Web App Dev</div>
+                      <span class="status-badge">Active</span>
+            <div class="escrow-meta">₦250,000 • Buyer: david@mail.com</div>
+          </div>
+
+        </div>
+
+        <div class="escrow-card" data-id="ESC003"
+             data-title="NFT Marketplace Integration"
+             data-amount="125,000"
+             data-currency="NGN"
+             data-buyer="mark@mail.com"
+             data-seller="rachel@mail.com"
+             data-started="17 Oct 2025"
+             data-status="Active">
+          <div>
+            <div class="escrow-title">NFT Integration</div>
+                      <span class="status-badge">Active</span>
+            <div class="escrow-meta">₦125,000 • Buyer: mark@mail.com</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- WALLET -->
+    <section class="wallet-section" id="walletSection" aria-hidden="true">
+      <div class="wallet-card">
+        <div class="wallet-balance" id="walletBalance">250 USDT</div>
+        <div class="wallet-actions">
+          <button class="wallet-action-btn" id="depositBtn">Deposit</button>
+          <button class="wallet-action-btn ghost" id="withdrawBtn">Withdraw</button>
+        </div>
+      </div>
+
+      <div class="transactions">
+        <h3 style="margin-top:18px;color:var(--primary)">Transaction History</h3>
+        <div class="tx-card"><div><div class="tx-title">Received from @John</div><div class="tx-meta">12 Nov 2025 • Ref: #TRX001</div></div><div class="tx-amount">+50 USDT</div></div>
+        <div class="tx-card"><div><div class="tx-title">Sent to @Mike</div><div class="tx-meta">10 Nov 2025 • Ref: #TRX002</div></div><div class="tx-amount">-20 USDT</div></div>
+        <div class="tx-card"><div><div class="tx-title">Escrow Released</div><div class="tx-meta">06 Nov 2025 • Ref: #TRX003</div></div><div class="tx-amount">+120 USDT</div></div>
+      </div>
+    </section>
+
+    <!-- DISPUTES -->
+    <section class="dispute-section" id="disputeSection" aria-hidden="true">
+      <div class="card-grid">
+        <div class="card"><h4>Total Disputes</h4><h2 id="totalDisputes">2</h2></div>
+        <div class="card"><h4>Resolved</h4><h2 id="resolvedCount">1</h2></div>
+        <div class="card"><h4>Pending</h4><h2 id="pendingCount">1</h2></div>
+      </div>
+
+      <div style="margin-top:18px">
+        <h3 style="color:var(--primary)">Dispute History</h3>
+
+        <!-- dispute cards -->
+        <div class="dispute-card" data-id="DSP001" data-title="Payment Not Released" data-escrow="ESC002" data-created="08 Nov 2025" data-status="Pending" data-desc="Buyer says seller didn't provide agreed server access.">
+          <div>
+            <div class="dispute-title">Dispute on “Web App Dev”</div>
+            <div class="dispute-meta">Opened 08 Nov 2025 • Ref: #DSP001</div>
+          </div>
+          <span class="status-badge pending">Pending</span>
+        </div>
+
+        <div class="dispute-card" data-id="DSP002" data-title="Wrong Deliverable Sent" data-escrow="ESC001" data-created="03 Nov 2025" data-status="Resolved" data-desc="Buyer disputed assets; resolved in favor of seller after review.">
+          <div>
+            <div class="dispute-title">Dispute on “UI Design for App”</div>
+            <div class="dispute-meta">Opened 03 Nov 2025 • Ref: #DSP002</div>
+          </div>
+          <span class="status-badge">Resolved</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS (improved styles inside same file) -->
+    <section id="settingsSection" class="settings-section" aria-hidden="true" style="display:none;">
+      <div class="settings-wrapper">
+        <div class="settings-header">
+          <div class="left">
+            <h2>Account Settings</h2>
+            <p>Update your profile and wallet details. Changes are saved locally for demo.</p>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <form id="settingsForm" class="settings-form" novalidate>
+            <div class="settings-group">
+              <label for="userName">Full Name</label>
+              <input type="text" id="userName" placeholder="Your full name">
+              <div class="field-note">Your display name on escrows and invoices.</div>
+            </div>
+
+            <div class="settings-group">
+              <label for="userEmail">Email</label>
+              <input type="email" id="userEmail"  placeholder="email@example.com">
+              <div class="field-note">Primary email for notifications & verification.</div>
+            </div>
+
+            <div class="settings-group">
+              <label for="userCountry">Country</label>
+              <input type="text" id="userCountry" placeholder="Country">
+            </div>
+
+            <div class="settings-group">
+              <label for="userWallet">Wallet Address (USDT)</label>
+              <div class="wallet-row">
+                <input class="wallet-input" type="text" id="userWallet" value="0x12abc34de56fgh..." placeholder="Your wallet address">
+                <button type="button" class="copy-btn" onclick="copyWallet()">Copy</button>
+              </div>
+              <div class="field-note">Paste your ERC-20 / TRC-20 address here for withdrawals.</div>
+            </div>
+
+            <div class="settings-group full-span">
+              <label for="changePassword">Change Password</label>
+              <input type="password" id="changePassword" placeholder="Enter new password (optional)">
+              <div class="field-note">Leave blank if you don't want to change your password.</div>
+            </div>
+
+            <div class="actions-row full-span">
+              <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+
+            <div class="settings-footer full-span">Your data is safe — SafeNode stores sensitive info securely .</div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Panel overlay + Slide Panel (used for escrow & dispute details) -->
+  <div class="panel-overlay" id="panelOverlay" aria-hidden="true">
+    <aside class="slide-panel" id="detailPanel" role="dialog" aria-modal="true" aria-hidden="true">
+      <!-- content populated dynamically -->
+      <button class="back-btn" id="panelBackBtn">← Back</button>
+      <div id="panelContent"></div>
+    </aside>
+  </div>
+
+  <!-- Deposit Modal -->
+  <div class="modal-overlay" id="depositModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
+      <h2 id="depositTitle">Deposit Funds</h2>
+      <p>Select your preferred method:</p>
+      <div class="payment-options">
+        <div class="payment-option" id="paystackOption">💳 Paystack (NGN)</div>
+        <div class="payment-option" id="cryptoOption">💰 Crypto (USDT)</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('depositModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div class="modal-overlay" id="withdrawModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="withdrawTitle">
+      <h2 id="withdrawTitle">Withdraw Funds</h2>
+      <label>Amount (USDT)</label>
+      <input type="number" id="withdrawAmount" placeholder="Enter amount" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-top:8px;">
+      <div class="modal-actions">
+        <button class="btn-primary" id="confirmWithdraw">Confirm</button>
+        <button class="btn-secondary" onclick="closeModal('withdrawModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Dispute Modal (pre-filled via escrow) -->
+  <div class="modal-overlay" id="createDisputeModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="createDisputeTitle">
+      <h2 id="createDisputeTitle">Initiate Dispute</h2>
+      <div style="font-size:.9rem;color:var(--gray)">Escrow Ref: <strong id="cdEscrowRef">—</strong></div>
+      <label style="margin-top:10px;display:block">Summary</label>
+      <input id="disputeSummary" placeholder="Brief summary" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-top:8px;">
+      <label style="margin-top:10px;display:block">Details</label>
+      <textarea id="disputeDetails" placeholder="Describe the issue" rows="5" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-top:8px;"></textarea>
+
+      <!-- File upload added to dispute modal (keeps it relevant and useful) -->
+      <label style="margin-top:10px;display:block">Attach files (optional)</label>
+      <input id="disputeFiles" type="file" multiple style="margin-top:6px;">
+
+      <div class="modal-actions">
+        <button class="btn-primary" id="submitDisputeBtn">Submit Dispute</button>
+        <button class="btn-secondary" onclick="closeModal('createDisputeModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+ <script>
+  // ==================== SafeNode Dashboard Script ====================
+
+  // small helper to copy wallet address
+  function copyWallet() {
+    const el = document.getElementById('userWallet');
+    if (!el) return;
+    el.select?.();
+    try {
+      navigator.clipboard?.writeText(el.value);
+      showToast('Wallet address copied to clipboard!','success');
+    } catch (e) {
+      el.setSelectionRange(0, 99999);
+      document.execCommand?.('copy');
+      showToast('Copied (fallback).',"success");
+    }
+  }
+
+  // main elements
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const menuToggle = document.getElementById('menuToggle');
+  const dashboardLink = document.getElementById('dashboardLink');
+  const walletLink = document.getElementById('walletLink');
+  const disputeLink = document.getElementById('disputeLink');
+  const settingsLink = document.getElementById('settingsLink');
+  const dashboardSection = document.getElementById('dashboardSection');
+  const walletSection = document.getElementById('walletSection');
+  const disputeSection = document.getElementById('disputeSection');
+  const settingsSection = document.getElementById('settingsSection');
+
+  // overlay toggle for mobile sidebar
+  function showOverlay() { overlay.classList.add('visible'); }
+  function hideOverlay() { overlay.classList.remove('visible'); }
+  function openSidebar() { sidebar.classList.add('active'); showOverlay(); }
+  function closeSidebar() { sidebar.classList.remove('active'); hideOverlay(); }
+  menuToggle?.addEventListener('click', () => sidebar.classList.contains('active') ? closeSidebar() : openSidebar());
+  overlay?.addEventListener('click', closeSidebar);
+
+  // ========== SCREEN PERSISTENCE ==========
+  const navMap = {
+    dashboardLink: dashboardSection,
+    walletLink: walletSection,
+    disputeLink: disputeSection,
+    settingsLink: settingsSection
+  };
+
+  function showSectionSafe(sectionEl) {
+    [dashboardSection, walletSection, disputeSection, settingsSection].forEach(s => s && (s.style.display = 'none'));
+    sectionEl && (sectionEl.style.display = 'block');
+  }
+
+  function setActiveLinkSafe(linkEl) {
+    document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+    if (linkEl) {
+      linkEl.classList.add('active');
+      localStorage.setItem('safenode_active', linkEl.id);
+    } else {
+      localStorage.removeItem('safenode_active');
+    }
+    closeSidebar();
+  }
+
+  // Attach nav events safely
+  Object.keys(navMap).forEach(linkId => {
+    const linkEl = document.getElementById(linkId);
+    const sectionEl = navMap[linkId];
+    if (!linkEl) return;
+    linkEl.addEventListener('click', e => {
+      e.preventDefault();
+      showSectionSafe(sectionEl);
+      setActiveLinkSafe(linkEl);
+    });
+  });
+
+  // Restore previous screen on load
+  document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('safenode_active');
+    if (saved && document.getElementById(saved)) {
+      const el = document.getElementById(saved);
+      showSectionSafe(navMap[saved]);
+      setActiveLinkSafe(el);
+    } else {
+      showSectionSafe(dashboardSection);
+      setActiveLinkSafe(dashboardLink);
+    }
+  });
+
+  // ========== LOGOUT ==========
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    window.location.href = '/logout';
+  });
+
+  // ========== RESPONSIVE CLEANUP ==========
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      sidebar?.classList.remove('active');
+      overlay?.classList.remove('visible');
+    }
+  });
+
+  // ==================== MOTTO ANIMATION ====================
+  const display = document.getElementById("display");
+  const messages = [
+    "Don’t send — SafeNode it.",
+    "Never forget to SafeNode your transactions.",
+    "Before you deal, SafeNode the seal.",
+    "Never move money without SafeNode."
+  ];
+
+  let index = 0;
+
+  function typeMessage(text, callback) {
+    display.textContent = "";
+    display.style.opacity = 1;
+    let i = 0;
+
+    const typer = setInterval(() => {
+      display.textContent += text.charAt(i);
+      i++;
+      if (i >= text.length) {
+        clearInterval(typer);
+        setTimeout(() => fadeOut(callback), 2000);
+      }
+    }, 60);
+  }
+
+  function fadeOut(callback) {
+    display.style.opacity = 0;
+    setTimeout(callback, 800);
+  }
+
+  function showNextMessage() {
+    const message = messages[index];
+    typeMessage(message, () => {
+      index = (index + 1) % messages.length;
+      showNextMessage();
+    });
+  }
+
+  // Start animation
+  showNextMessage();
+
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const depositStatus = params.get("deposit");
+    const amount = params.get("amount");
+
+    if (depositStatus === "success") {
+      showToast(`✅ Deposit of ₦${amount} was successful!`);
+      // Remove query from URL after showing toast
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  });
+
+  
+</script>
+</body>
+</html>
+
+<script src="/js/main.js"></script>
+<script src="/js/wallet.js"></script>
+<script src="/js/dis.js"></script>
+<script src="/js/De.js"></script>

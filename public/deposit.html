@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeNode — Deposit</title>
+      <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; font-family: "Inter", sans-serif; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top left, #e7fff2, #f2fef9 60%);
+      color: #033d28;
+      display: flex;
+      font-weight: 500;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border-radius: 22px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      width: 90%;
+      max-width: 440px;
+      padding: 25px 22px 35px;
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #00a86b;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 1.6em;
+    }
+
+    .subtext {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .wallet-card {
+      background: linear-gradient(135deg, #00a86b, #00915f);
+      color: #fff;
+      border-radius: 16px;
+      padding: 18px;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 6px 18px rgba(0, 168, 107, 0.15);
+    }
+
+    .wallet-card::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+    }
+
+    .wallet-label {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-bottom: 6px;
+    }
+
+    .wallet-address {
+      font-weight: 600;
+      font-size: 14px;
+      word-break: break-all;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .copy-btn {
+      background: #fff;
+      color: #00a86b;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.25s;
+    }
+
+    .copy-btn:hover {
+      background: #e9fef1;
+    }
+
+    .amount-box {
+      background: #fefaf2;
+      border: 1px solid #fff3c4;
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #7a6200;
+      box-shadow: 0 2px 8px rgba(255, 221, 102, 0.15);
+      margin-bottom: 20px;
+    }
+
+    .timer {
+      font-size: 16px;
+      font-weight: 700;
+      color: #022;
+      margin-bottom: 20px;
+    }
+
+    .pay-btn {
+      background: #00a86b;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 25px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: 100%;
+      max-width: 250px;
+      box-shadow: 0 5px 15px rgba(0, 168, 107, 0.2);
+    }
+
+    .pay-btn:hover {
+      background: #00955f;
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(3px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 18px;
+      padding: 25px 20px;
+      text-align: center;
+      width: 85%;
+      max-width: 360px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal h3 {
+      color: #d63031;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .ok-btn, .confirm-btn, .cancel-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .ok-btn {
+      background: #00a86b;
+      color: #fff;
+    }
+    .ok-btn:hover { background: #00925e; }
+
+    .confirm-btn {
+      background: #00a86b;
+      color: #fff;
+    }
+    .confirm-btn:hover { background: #00925e; }
+
+    .cancel-btn {
+      background: #ccc;
+      color: #222;
+    }
+    .cancel-btn:hover { background: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Deposit via USDT (BNB)</h2>
+    <p class="subtext">Please send the exact amount shown below to the wallet address.</p>
+
+    <div class="wallet-card">
+      <div class="wallet-label">Your Deposit Wallet</div>
+      <div id="walletAddress" class="wallet-address">0xF3A4cB823eE9123cAab4fCb38E1B59c7214B1a2C</div>
+      <button class="copy-btn" id="copyBtn">Copy Address</button>
+    </div>
+
+    <div class="amount-box">
+      Total to Send: <span id="totalAmount">10.80</span> USDT
+    </div>
+
+    <div class="timer">
+      Payment expires in: <span id="countdown">30:00</span>
+    </div>
+
+    <button class="pay-btn" id="paidBtn">I Have Paid</button>
+
+    <div class="footer">
+      Your transaction will be verified automatically after sending.
+    </div>
+  </div>
+
+  <!-- Warning Popup -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3>⚠️ Important Notice</h3>
+      <p>
+        You must send <strong>exactly <span id="exactAmount">10.80 USDT</span></strong>
+        to the wallet address.<br />
+        Sending any other amount may delay or cancel your deposit.
+      </p>
+      <button class="ok-btn" id="okBtn">OK</button>
+    </div>
+  </div>
+
+  <!-- Confirmation Popup -->
+  <div class="modal-overlay" id="confirmOverlay">
+    <div class="modal">
+      <h3>Confirm Payment</h3>
+      <p>Have you sent exactly <strong id="confirmAmount">10.80 USDT</strong> to the wallet?</p>
+      <button class="confirm-btn" id="confirmYes">Yes, I Have Paid</button>
+      <button class="cancel-btn" id="confirmNo">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div class="modal-overlay" id="successOverlay">
+    <div class="modal">
+      <h3 style="color:#00a86b;">✅ Payment Submitted</h3>
+      <p>Your payment is now pending confirmation. Please wait a few minutes.</p>
+      <button class="ok-btn" id="successOk">OK</button>
+    </div>
+  </div>
+
+  <script>
+    // Dummy Data
+    const amount = 10.00;
+    const networkFee = 0.80;
+    const walletAddr = "0xF3A4cB823eE9123cAab4fCb38E1B59c7214B1a2C";
+    const total = (amount + networkFee).toFixed(2);
+
+    // Elements
+    const totalAmountEl = document.getElementById("totalAmount");
+    const walletAddressEl = document.getElementById("walletAddress");
+    const countdownEl = document.getElementById("countdown");
+    const copyBtn = document.getElementById("copyBtn");
+    const modalOverlay = document.getElementById("modalOverlay");
+    const okBtn = document.getElementById("okBtn");
+    const exactAmount = document.getElementById("exactAmount");
+    const paidBtn = document.getElementById("paidBtn");
+    const confirmOverlay = document.getElementById("confirmOverlay");
+    const confirmYes = document.getElementById("confirmYes");
+    const confirmNo = document.getElementById("confirmNo");
+    const confirmAmount = document.getElementById("confirmAmount");
+    const successOverlay = document.getElementById("successOverlay");
+    const successOk = document.getElementById("successOk");
+
+    totalAmountEl.textContent = total;
+    walletAddressEl.textContent = walletAddr;
+    exactAmount.textContent = `${total} USDT`;
+    confirmAmount.textContent = `${total} USDT`;
+
+    // Timer
+    const endTimeKey = "depositEndTime";
+    let endTime = localStorage.getItem(endTimeKey);
+    if (!endTime) {
+      endTime = Date.now() + 30 * 60 * 1000;
+      localStorage.setItem(endTimeKey, endTime);
+    }
+    const updateTimer = () => {
+      const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+      const min = Math.floor(remaining / 60);
+      const sec = remaining % 60;
+      countdownEl.textContent = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+      if (remaining <= 0) {
+        countdownEl.textContent = "Expired";
+        localStorage.removeItem(endTimeKey);
+        clearInterval(timer);
+      }
+    };
+    const timer = setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // Copy button
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(walletAddr).then(() => {
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => (copyBtn.textContent = "Copy Address"), 2000);
+      });
+    });
+
+    // Warning modal
+    const popupShownKey = "depositPopupShown";
+    if (!localStorage.getItem(popupShownKey)) {
+      modalOverlay.style.display = "flex";
+    }
+    okBtn.addEventListener("click", () => {
+      modalOverlay.style.display = "none";
+      localStorage.setItem(popupShownKey, "yes");
+    });
+
+    // "I Have Paid" flow
+    paidBtn.addEventListener("click", () => {
+      confirmOverlay.style.display = "flex";
+    });
+
+    confirmYes.addEventListener("click", () => {
+      confirmOverlay.style.display = "none";
+      successOverlay.style.display = "flex";
+      // Later connect this to your backend (API call)
+    });
+
+    confirmNo.addEventListener("click", () => {
+      confirmOverlay.style.display = "none";
+    });
+
+    successOk.addEventListener("click", () => {
+      successOverlay.style.display = "none";
+    });
+  </script>
+</body>
+</html>

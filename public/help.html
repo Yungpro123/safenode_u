@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SafeNode — Help Center</title>
+      <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f9fbfa;
+      color: #1f2937;
+      display: flex;
+      font-weight: 500;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 25px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header .logo img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+    }
+
+    header .logo span {
+      font-size: 22px;
+      font-weight: 700;
+      color: #00a86b;
+    }
+
+    header nav a {
+      margin-left: 25px;
+      text-decoration: none;
+      color: #374151;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    header nav a:hover {
+      color: #00a86b;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #e8f9f0, #f3faff);
+      padding: 80px 10%;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 38px;
+      color: #062f24;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      color: #4b5563;
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+
+    .search-box {
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 8px 12px;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      padding: 12px;
+      font-size: 15px;
+      flex: 1;
+      border-radius: 10px;
+    }
+
+    main {
+      flex: 1;
+      padding: 60px 10%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .section {
+      background: white;
+      border-radius: 14px;
+      padding: 25px 25px 30px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+    }
+
+    .section:hover {
+      transform: translateY(-4px);
+    }
+
+    .section h2 {
+      font-size: 1.2rem;
+      color: #00a86b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section h2::before {
+      content: "•";
+      color: #00a86b;
+      font-weight: bold;
+      font-size: 24px;
+      line-height: 0;
+    }
+
+    .section p, .section ul {
+      color: #4b5563;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .section ul {
+      padding-left: 18px;
+      margin-top: 6px;
+    }
+
+    .section li {
+      margin-bottom: 8px;
+    }
+
+    footer {
+      background: #0b513f;
+      color: #c7dcd4;
+      text-align: center;
+      padding: 30px 10%;
+      font-size: 14px;
+      margin-top: 40px;
+    }
+
+    footer a {
+      color: #00ff99;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; gap: 10px; padding: 20px; }
+      .hero h1 { font-size: 30px; }
+      .hero { padding: 60px 5%; }
+      main { padding: 40px 5%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="logo.png" alt="SafeNode Logo" />
+      <span>SafeNode</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>SafeNode Help Center</h1>
+    <p>Everything you need to know about using SafeNode for secure escrow transactions.</p>
+
+  </section>
+
+  <main>
+    <div class="section-grid">
+      <div class="section">
+        <h2>About SafeNode</h2>
+        <div>SafeNode is a secure escrow payment system that protects buyers and sellers during online transactions. Funds are held safely until both sides are satisfied with the outcome.</div>
+      </div>
+
+      <div class="section">
+        <h2>Getting Started</h2>
+        <ul>
+          <li>Register your account and verify your email.</li>
+          <li>Access your SafeNode wallet to deposit or withdraw funds.</li>
+          <li>Supported methods: Paystack (NGN) and USDT on BNB network.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Creating Contracts</h2>
+        <ul>
+          <li>Go to your dashboard and click “Create Contract”.</li>
+          <li>Fill in contract details and choose who pays the service charge.</li>
+          <li>Buyer funds the contract; SafeNode holds funds securely.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Disputes & Resolution</h2>
+        <p>If issues arise, open a dispute from your contract page. Provide evidence and messages — our team reviews and ensures a fair outcome.</p>
+      </div>
+
+      <div class="section">
+        <h2>Security & Passwords</h2>
+        <ul>
+          <li>Use a strong password and never share it with anyone.</li>
+          <li>SafeNode will never ask for your credentials.</li>
+          <li>Reset passwords through the “Forgot Password” option.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Fees & Transactions</h2>
+        <p>SafeNode charges a 6% service fee per escrow transaction, which can be paid by the buyer, seller, or split evenly. No hidden costs or extra deductions.</p>
+      </div>
+
+      <div class="section">
+        <h2>Contact & Support</h2>
+        <p>Need more help? Reach out to our support team:</p>
+        <ul>
+          <li>Email: <a href="mailto:support@safenode.com">support@safenode.com</a></li>
+          <li>Live chat: Available in your dashboard</li>
+          <li>Response time: Within 24 hours (Mon–Fri)</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="year"></span> SafeNode Escrow Services. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

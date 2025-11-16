@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  
+  <title>SafeNode — Access Your Account</title>
+  <style>
+    :root {
+      --primary: #00a86b;
+      --primary-light: #d4f7e8;
+      --text-dark: #1a1a1a;
+      --text-light: #777;
+      --bg-gradient: linear-gradient(135deg, #f6fbff 0%, #f3fff9 100%);
+      --card-bg: #fff;
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; font-family: "Inter", sans-serif; }
+    body {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+      background: var(--bg-gradient);
+      background-size: 600% 600%;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    /* Background gradient animation */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Floating particles behind everything */
+    canvas#bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .auth-card {
+      position: relative;
+      z-index: 2;
+      width: 95%;
+      max-width: 400px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px 35px;
+      animation: fadeIn 0.6s ease;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+      font-weight: 700;
+      font-size: 24px;
+      color: var(--primary);
+    }
+    .logo img { width: 32px; border-radius: 8px; margin-right: 8px; }
+    h2 { text-align: center; color: var(--text-dark); margin-bottom: 25px; }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-top: 12px;
+      display: block;
+    }
+    input {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      margin-top: 5px;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      outline: none;
+    }
+    input[readonly] {
+      background: #f7f7f7;
+      cursor: not-allowed;
+    }
+    #signupCountry { display: none; }
+    .password-wrap { position: relative; }
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 36%;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .btn {
+      width: 100%;
+      margin-top: 20px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:hover { opacity: 0.93; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .spinner {
+      border: 3px solid #fff;
+      border-top: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.8s linear infinite;
+    }
+    .switch-text {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    .switch-text span {
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .terms-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-light);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+    .terms-note a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .terms-note a:hover { text-decoration: underline; }
+    #verifySection { display: none; text-align: center; }
+    #verifySection p { color: var(--text-dark); font-size: 15px; margin-bottom: 20px; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <!-- Floating particle background -->
+  <canvas id="bg"></canvas>
+
+  <div class="auth-card">
+    <div class="logo">
+      <img src="../logo.png" alt="SafeNode Logo" /> SafeNode
+    </div>
+
+    <!-- Signup -->
+    <div id="signupSection">
+      <h2>Create Account</h2>
+      <form id="signupForm">
+        <label>Full Name</label>
+        <input id="signupName" type="text" placeholder="Enter your name" required />
+        <label>Email</label>
+        <input id="signupEmail" type="email" placeholder="Enter your email" required />
+        <input id="signupCountry" type="hidden" />
+        <input id="signupCurrency" type="hidden" />
+        <label>Password</label>
+        <div class="password-wrap">
+          <input id="signupPassword" type="password" placeholder="Create a password" required />
+          <span class="toggle-password" id="togglePass1">Show</span>
+        </div>
+        <button type="submit" class="btn" id="signupBtn">Sign Up</button>
+        <p class="terms-note">
+          By signing up, you agree to our 
+          <a href="/t&c">Terms & Conditions</a> and 
+          <a href="/privacy">Privacy Policy</a>.
+        </p>
+      </form>
+      <p class="switch-text">Already have an account? <span id="goLogin">Sign in</span></p>
+    </div>
+
+    <!-- Login -->
+    <div id="loginSection" style="display:none;">
+      <h2>Welcome Back</h2>
+      <form id="loginForm">
+        <label>Email</label>
+        <input id="loginEmail" type="email" placeholder="Enter your email" required />
+        <label>Password</label>
+        <div class="password-wrap">
+          <input id="loginPassword" type="password" placeholder="Enter your password" required />
+          <span class="toggle-password" id="togglePass2">Show</span>
+        </div>
+        <button type="submit" class="btn" id="loginBtn">Sign in</button>
+      </form>
+      <p class="terms-note"><a href="/forgot">forgot password ?</a></p>
+      <p class="switch-text">Don’t have an account? <span id="goSignup">Sign Up</span></p>
+    </div>
+
+    <!-- Verification -->
+    <div id="verifySection">
+      <h2>Verify Your Account</h2>
+      <p>We sent a verification link to your email. Click it to verify your account.</p>
+      <p class="switch-text">Already verified? <span id="goLoginFromVerify">Sign up</span></p>
+    </div>
+  </div>
+
+<script>
+  const domain = window.location.origin
+  const backendUrl = `${domain}/api/auth`;
+
+  // Particle background
+  const canvas = document.getElementById("bg");
+  const ctx = canvas.getContext("2d");
+  let particles = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + 1,
+      dx: (Math.random() - 0.5) * 0.6,
+      dy: (Math.random() - 0.5) * 0.6,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(0,168,107,0.25)";
+    particles.forEach((p) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      p.x += p.dx;
+      p.y += p.dy;
+
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // Section toggle
+  const showSection = (id) => {
+    ["signupSection", "loginSection", "verifySection"].forEach(sec => {
+      document.getElementById(sec).style.display = "none";
+    });
+    document.getElementById(id).style.display = "block";
+  };
+  document.getElementById("goLogin").onclick = () => showSection("loginSection");
+  document.getElementById("goSignup").onclick = () => showSection("signupSection");
+  document.getElementById("goLoginFromVerify").onclick = () => showSection("loginSection");
+
+  function togglePassword(btnId, inputId) {
+    const btn = document.getElementById(btnId);
+    const input = document.getElementById(inputId);
+    btn.onclick = () => {
+      const hidden = input.type === "password";
+      input.type = hidden ? "text" : "password";
+      btn.textContent = hidden ? "Hide" : "Show";
+    };
+  }
+  togglePassword("togglePass1", "signupPassword");
+  togglePassword("togglePass2", "loginPassword");
+
+  function showToast(msg, type="info") {
+    const t = document.createElement("div");
+    t.textContent = msg;
+    t.style.position = "fixed";
+    t.style.bottom = "30px";
+    t.style.left = "50%";
+    t.style.transform = "translateX(-50%)";
+    t.style.background = type === "error" ? "#ff4d4d" : type === "success" ? "#00a86b" : "#444";
+    t.style.color = "#fff";
+    t.style.padding = "12px 22px";
+    t.style.borderRadius = "8px";
+    t.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+    t.style.fontSize = "14px";
+    t.style.zIndex = "9999";
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  function setLoading(btn, state, text) {
+    if (state) {
+      btn.disabled = true;
+      btn.innerHTML = `<div class="spinner"></div> Please wait...`;
+    } else {
+      btn.disabled = false;
+      btn.textContent = text;
+    }
+  }
+
+  async function detectCountry() {
+    try {
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+      const country = data.country_name || "Unknown";
+      const currency = country.toLowerCase() === "nigeria" ? "NGN" : "USDT";
+      document.getElementById("signupCountry").value = country;
+      document.getElementById("signupCurrency").value = currency;
+    } catch (err) {
+      document.getElementById("signupCountry").value = "Unknown";
+      document.getElementById("signupCurrency").value = "USDT";
+    }
+  }
+  detectCountry();
+
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("signupBtn");
+    setLoading(btn, true, "Sign Up");
+    try {
+      const res = await fetch(`${backendUrl}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: signupName.value.trim(),
+          email: signupEmail.value.trim(),
+          password: signupPassword.value.trim(),
+          country: signupCountry.value.trim(),
+          currency: signupCurrency.value.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showSection("verifySection");
+      } else {
+        showToast(data.message || "Signup failed.", "error");
+      }
+    } catch {
+      showToast("Connection timeout. Check your server.", "error");
+    } finally {
+      setLoading(btn, false, "Sign Up");
+    }
+  });
+
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("loginBtn");
+    setLoading(btn, true, "Sign in");
+    try {
+      const res = await fetch(`${backendUrl}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: loginEmail.value.trim(),
+          password: loginPassword.value.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.userId) {
+        localStorage.setItem("ui", data.userId);
+
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 2000);
+      } else {
+        showToast(data.message || "Invalid credentials.", "error");
+      }
+    } catch {
+      showToast("Connection timeout. Check your server.", "error");
+    } finally {
+      setLoading(btn, false, "Login");
+    }
+  });
+</script>
+</body>
+</html>

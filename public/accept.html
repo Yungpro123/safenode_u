@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Favicon --><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Favicon (make sure the PNG itself has rounded corners) -->
+    <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    /* your existing CSS here */
+  </style>
+</head>
+
+  <title>Accept Contract — SafeNode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f6fbf9, #f1f6ff);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 36px 32px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+      border: 1px solid #e6f1ec;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .logo img {
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      transition: transform .3s ease;
+    }
+
+    .logo img:hover {
+      transform: scale(1.1);
+    }
+
+    .logo span {
+      font-size: 22px;
+      font-weight: 700;
+      color: #00a86b;
+      letter-spacing: -0.3px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #052e20;
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 22px;
+    }
+
+    .info {
+      background: #f7f9fc;
+      border:none;
+      border-radius: 14px;
+      padding: 18px 16px;
+      font-size: 15px;
+      color: #0a3f2f;
+      margin-bottom: 20px;
+    }
+
+    .info p {
+      margin: 8px 0;
+      line-height: 1.55;
+      border-bottom: 1px solid #edf4f1;
+      padding-bottom: 6px;
+    }
+
+    .info p:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .info strong {
+      color: black;
+      font-weight: 600;
+    }
+
+    .desc-label {
+      display: block;
+      font-weight: 600;
+      color: black;
+      margin: 10px 0 6px;
+      font-size: 14px;
+    }
+
+    .desc {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14.5px;
+      color: #073728;
+      line-height: 1.5;
+      border-left: 3px solid #00a86b;
+      box-shadow: 0 0 0 1px #e8f3ed;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #00a86b;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.25s ease;
+    }
+
+    .btn:hover {
+      background: #00995f;
+      transform: translateY(-1px);
+    }
+
+    .msg {
+      text-align: center;
+      margin-top: 16px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .error { color: #d43b3b; }
+    .success { color: #00a86b; }
+
+    /* Popup */
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .popup-content {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 14px;
+      width: 92%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border: 1px solid #e5f0eb;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .popup-content h3 {
+      color: #053322;
+      margin-bottom: 18px;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .popup-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .popup-buttons button {
+      padding: 11px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s ease;
+    }
+
+    .popup-buttons .confirm {
+      background: #00a86b;
+      color: #fff;
+    }
+
+    .popup-buttons .cancel {
+      background: #e7eceb;
+      color: #333;
+    }
+
+    .popup-buttons .confirm:hover {
+      background: #00975f;
+    }
+
+    .popup-buttons .cancel:hover {
+      background: #d8dddc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="logo">
+      <img src="../logo.png" alt="SafeNode Logo" />
+      <span>SafeNode</span>
+    </div>
+
+    <h2>Accept Secure Contract</h2>
+
+    <div class="info" id="contractInfo">
+      <p>Loading contract details...</p>
+    </div>
+
+    <button id="acceptBtn" class="btn">Accept Contract</button>
+    <div id="message" class="msg"></div>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="popup">
+    <div class="popup-content">
+      <h3>Confirm acceptance of this contract?</h3>
+      <div class="popup-buttons">
+        <button class="confirm" id="confirmYes">Yes, Accept</button>
+        <button class="cancel" id="confirmNo">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../dashboard/actions.js"></script>
+  <script src="../dashboard/actions.js"></script>
+<script>
+
+  const contractInfo = document.getElementById("contractInfo");
+  const messageBox = document.getElementById("message");
+  const acceptBtn = document.getElementById("acceptBtn");
+  const popup = document.getElementById("popup");
+  const confirmYes = document.getElementById("confirmYes");
+  const confirmNo = document.getElementById("confirmNo");
+
+  const contractId = new URLSearchParams(window.location.search).get("contract");
+  let sellerEmail = null;
+  let buyerEmail = null;
+
+  const showMessage = (text, type = "error") => {
+    messageBox.textContent = text;
+    messageBox.className = `msg ${type}`;
+  };
+
+  if (!contractId) window.location.href = "/404";
+
+  async function getUserEmail() {
+    try {
+      const userId = localStorage.getItem("ui");
+      if (!userId) throw new Error("Missing user ID");
+      const res = await fetch(`/api/users/${userId}`);
+      const data = await res.json();
+      if (data.success && data.user?.email) sellerEmail = data.user.email;
+      else throw new Error();
+    } catch {
+      showMessage("Please log in again.", "error");
+      setTimeout(() => (window.location.href = "/auth"), 1200);
+    }
+  }
+
+  async function loadContract() {
+    try {
+      const res = await fetch(`/api/contracts/${contractId}`);
+      const data = await res.json();
+
+      if (!data.success || !data.data) {
+        window.location.href = "/404";
+        return;
+      }
+
+      const c = data.data;
+      buyerEmail = c.buyer;
+
+      // Use contract currency (fallback to NGN)
+      const currencySymbol =
+        c.currency === "USD"
+          ? "$"
+          : c.currency === "GBP"
+          ? "£"
+          : c.currency === "EUR"
+          ? "€"
+          : c.currency === "NGN"
+          ? "₦"
+          : `${c.currency || ""} `;
+
+      // Use contract currency (fallback to NGN)
+let formattedAmount;
+const amount = Number(c.amount).toLocaleString();
+
+if (c.currency === "USD") {
+  formattedAmount = `$${amount}`;
+} else if (c.currency === "GBP") {
+  formattedAmount = `£${amount}`;
+} else if (c.currency === "EUR") {
+  formattedAmount = `€${amount}`;
+} else if (c.currency === "NGN") {
+  formattedAmount = `₦${amount}`;
+} else if (c.currency === "USDT") {
+  formattedAmount = `${amount} USDT`; // ✅ crypto suffix
+} else {
+  formattedAmount = `${amount} ${c.currency || ""}`; // fallback
+}
+
+      if (["accepted", "completed", "disputed"].includes(c.status)) {
+        contractInfo.innerHTML = `
+          <p><strong>Title:</strong> ${c.title}</p>
+          <p><strong>Seller:</strong> ${c.sellername}</p>
+          <span class="desc-label">Description:</span>
+          <div class="desc">${c.description}</div>
+          <p><strong>Amount:</strong> ${formattedAmount}</p>
+          <p><strong>Status:</strong> ${c.status}</p>
+          <p><strong>Created:</strong> ${new Date(c.createdAt).toLocaleString()}</p>
+        `;
+        acceptBtn.style.display = "none";
+        showToast("Already Accepted", "success");
+        window.location.href = `/accepted?id=${contractId}`;
+        return;
+      }
+
+      if (c.status !== "funded") {
+        contractInfo.innerHTML = `<p style="color:#d33;text-align:center;">Invalid or Unfunded Contract.</p>`;
+        acceptBtn.style.display = "none";
+        return;
+      }
+
+      contractInfo.innerHTML = `
+        <p><strong>Title:</strong> ${c.title}</p>
+        <span class="desc-label">Description:</span>
+        <div class="desc">${c.description}</div>
+        <p><strong>Amount:</strong> ${formattedAmount}</p>
+        <p><strong>Buyer:</strong> ${c.buyer}</p>
+        <p><strong>Charge Payer:</strong> ${c.chargePayer}</p>
+        <p><strong>Status:</strong> ${c.status}</p>
+        <p><strong>Created:</strong> ${new Date(c.createdAt).toLocaleString()}</p>
+      `;
+    } catch (err) {
+      console.error(err);
+      window.location.href = "/dashboard";
+    }
+  }
+
+  acceptBtn.addEventListener("click", () => {
+    if (!sellerEmail) return showToast("Please wait...", "error");
+    if (sellerEmail.toLowerCase() === buyerEmail.toLowerCase()) {
+      return showMessage("You cannot accept your own contract.", "error");
+    }
+    popup.style.display = "flex";
+  });
+
+  confirmNo.addEventListener("click", () => {
+    popup.style.display = "none";
+  });
+
+  confirmYes.addEventListener("click", async () => {
+    popup.style.display = "none";
+    acceptBtn.disabled = true;
+    acceptBtn.textContent = "Processing...";
+
+    try {
+      const res = await fetch(`/api/contracts/accept/${contractId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: sellerEmail }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showToast("Contract accepted successfully!", "success");
+        acceptBtn.textContent = "Accepted";
+        setTimeout(() => {
+          window.location.href = `/accepted?id=${contractId}`;
+        }, 1200);
+      } else {
+        showMessage(data.message || "Failed to accept contract.", "error");
+        acceptBtn.textContent = "Accept Contract";
+      }
+    } catch {
+      showMessage("Network error.", "error");
+      acceptBtn.textContent = "Accept Contract";
+    } finally {
+      acceptBtn.disabled = false;
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    acceptBtn.disabled = true;
+    await getUserEmail();
+    await loadContract();
+    acceptBtn.disabled = false;
+  });
+</script>
+</body>
+</html>

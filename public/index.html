@@ -1,0 +1,512 @@
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />  
+  <title>SafeNode — Secure. Simple. Global.</title>  
+      <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">  
+  <script src="https://unpkg.com/scrollreveal"></script>  
+  <style>  
+    :root {  
+      --primary: #00a86b;  
+      --primary-light: #d4f7e8;  
+      --dark: #111;  
+      --gray: #666;  
+      --bg-gradient: linear-gradient(135deg, #e9fdf4 0%, #f0f5ff 100%);  
+      --radius: 16px;  
+      --shadow: 0 10px 30px rgba(0,0,0,0.07);  
+    }  * {  
+  box-sizing: border-box;  
+  font-family: "Inter", sans-serif;  
+  scroll-behavior: smooth;  
+}  
+
+body {  
+  margin: 0;  
+  background: var(--bg-gradient);  
+  color: var(--dark);  
+  overflow-x: hidden;  
+  position: relative;  
+}  
+
+/* Floating particle canvas */  
+canvas#bg {  
+  position: fixed;  
+  top: 0;  
+  left: 0;  
+  width: 100%;  
+  height: 100%;  
+  z-index: 0;  
+  pointer-events: none;  
+  opacity: 0.6;  
+}  
+
+/* Layer fix for all content */  
+header, section, footer, .cookie-banner {  
+  position: relative;  
+  z-index: 2;  
+}  
+
+/* Header */  
+header {  
+  display: flex;  
+  align-items: center;  
+  justify-content: space-between;  
+  padding: 10px 8%;  
+  background: #fff;  
+  box-shadow: var(--shadow);  
+  position: sticky;  
+  top: 0;  
+  z-index: 1000;  
+}  
+
+.logo {  
+  display: flex;  
+  align-items: center;  
+  gap: 10px;  
+}  
+
+.logo img {  
+  width: 36px;  
+  height: 36px;  
+  border-radius: 8px;  
+}  
+
+.logo h1 {  
+  font-size: 1.7rem;  
+  font-weight: 800;  
+  color: var(--primary);  
+  letter-spacing: -0.5px;  
+}  
+
+.nav-links {  
+  display: flex;  
+  gap: 22px;  
+}  
+
+.nav-links a {  
+  text-decoration: none;  
+  color: var(--dark);  
+  font-weight: 600;  
+  transition: color 0.2s;  
+}  
+
+.nav-links a:hover {  
+  color: var(--primary);  
+}  
+
+.header-btn {  
+  background: var(--primary);  
+  color: #fff;  
+  padding: 10px 22px;  
+  border: none;  
+  border-radius: 10px;  
+  font-weight: 600;  
+  cursor: pointer;  
+  transition: transform 0.2s ease;  
+}  
+
+.header-btn:hover {  
+  transform: translateY(-2px);  
+  opacity: 0.93;  
+}  
+
+/* Hamburger */  
+.menu-toggle {  
+  display: none;  
+  flex-direction: column;  
+  gap: 5px;  
+  cursor: pointer;  
+}  
+
+.menu-toggle div {  
+  width: 26px;  
+  height: 3px;  
+  background: var(--dark);  
+  border-radius: 2px;  
+  transition: all 0.3s;  
+}  
+
+/* Mobile Menu */  
+.mobile-menu {  
+  display: none;  
+  position: fixed;  
+  top: 60px;  
+  left: 0;  
+  width: 100%;  
+  height: 50%;  
+  background: white;  
+  z-index: 999;  
+  flex-direction: column;  
+  justify-content: center;  
+  align-items: center;  
+  gap: 25px;  
+  box-shadow: var(--shadow);  
+  border-radius: 0 0 20px 20px;  
+  animation: slideDown 0.4s ease forwards;  
+}  
+
+.mobile-menu.active {  
+  display: flex;  
+}  
+
+.mobile-menu a {  
+  text-decoration: none;  
+  color: var(--dark);  
+  font-weight: 600;  
+  font-size: 1.1rem;  
+}  
+
+@keyframes slideDown {  
+  from { transform: translateY(-100%); opacity: 0; }  
+  to { transform: translateY(0); opacity: 1; }  
+}  
+
+/* Hero */  
+.hero {  
+  display: flex;  
+  flex-direction: row;  
+  align-items: center;  
+  justify-content: space-between;  
+  padding: 70px 8%;  
+  gap: 40px;  
+  flex-wrap: wrap;  
+}  
+
+.hero-content {  
+  flex: 1;  
+  min-width: 300px;  
+}  
+
+.hero h2 {  
+  font-size: 2.5rem;  
+  font-weight: 800;  
+  line-height: 1.3;  
+}  
+
+.hero p {  
+  color: var(--gray);  
+  margin-top: 10px;  
+  font-size: 1rem;  
+  max-width: 550px;  
+}  
+
+.hero-buttons {  
+  margin-top: 25px;  
+  display: flex;  
+  flex-wrap: wrap;  
+  gap: 12px;  
+}  
+
+.btn {  
+  background: var(--primary);  
+  color: #fff;  
+  padding: 12px 28px;  
+  border: none;  
+  border-radius: 10px;  
+  font-weight: 600;  
+  cursor: pointer;  
+  transition: all 0.3s ease;  
+}  
+
+.btn:hover {  
+  transform: translateY(-2px);  
+  opacity: 0.93;  
+}  
+
+.btn-outline {  
+  background: transparent;  
+  border: 2px solid var(--primary);  
+  color: var(--primary);  
+}  
+
+.hero img {  
+  flex: 1;  
+  max-width: 480px;  
+  width: 100%;  
+  animation: float 4s ease-in-out infinite;  
+}  
+
+@keyframes float {  
+  0%, 100% { transform: translateY(0); }  
+  50% { transform: translateY(-10px); }  
+}  
+
+/* Services */  
+.services {  
+  background: white;  
+  padding: 70px 8%;  
+  text-align: center;  
+}  
+
+.services h3 {  
+  font-size: 1.8rem;  
+  font-weight: 700;  
+  margin-bottom: 30px;  
+}  
+
+.service-grid {  
+  display: grid;  
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));  
+  gap: 30px;  
+  max-width: 1100px;  
+  margin: 0 auto;  
+}  
+
+.card {  
+  background: #fff;  
+  border-radius: var(--radius);  
+  box-shadow: var(--shadow);  
+  padding: 24px 20px;  
+  text-align: left;  
+  transition: transform 0.25s ease, box-shadow 0.25s ease;  
+  min-height: 180px;  
+}  
+
+.card:hover {  
+  transform: translateY(-4px);  
+  box-shadow: 0 8px 25px rgba(0,0,0,0.07);  
+}  
+
+.card h4 {  
+  color: var(--primary);  
+  margin-bottom: 8px;  
+  font-size: 1.05rem;  
+  font-weight: 700;  
+}  
+
+.card p {  
+  color: var(--gray);  
+  font-size: 0.95rem;  
+  line-height: 1.5;  
+}  
+
+/* CTA */  
+.cta {  
+  background: var(--primary);  
+  color: white;  
+  text-align: center;  
+  padding: 80px 8%;  
+}  
+
+.cta h3 {  
+  font-size: 2rem;  
+  margin-bottom: 15px;  
+}  
+
+.cta p {  
+  color: #eafef3;  
+  max-width: 550px;  
+  margin: 0 auto 25px;  
+  font-size: 1rem;  
+}  
+
+.cta .btn {  
+  background: white;  
+  color: var(--primary);  
+}  
+
+/* Footer */  
+footer {  
+  background: #fff;  
+  text-align: center;  
+  padding: 40px 10px 20px;  
+  font-size: 0.9rem;  
+  color: var(--gray);  
+  box-shadow: 0 -3px 20px rgba(0, 0, 0, 0.05);  
+}  
+
+.footer-links {  
+  margin-top: 12px;  
+  color: var(--primary);  
+  font-weight: 500;  
+}  
+
+/* Cookie Modal */  
+.cookie-banner {  
+  position: fixed;  
+  bottom: 20px;  
+  left: 50%;  
+  transform: translateX(-50%);  
+  background: white;  
+  padding: 20px 25px;  
+  border-radius: 14px;  
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);  
+  display: none;  
+  max-width: 420px;  
+  text-align: center;  
+  z-index: 9999;  
+  animation: slideUp 0.5s ease;  
+}  
+
+.cookie-banner.active {  
+  display: block;  
+}  
+
+.cookie-banner p {  
+  color: var(--gray);  
+  font-size: 0.95rem;  
+  margin-bottom: 14px;  
+  line-height: 1.5;  
+}  
+
+.cookie-banner button {  
+  background: var(--primary);  
+  border: none;  
+  color: white;  
+  padding: 10px 20px;  
+  border-radius: 10px;  
+  font-weight: 600;  
+  cursor: pointer;  
+  transition: background 0.3s ease;  
+}  
+
+.cookie-banner button:hover {  
+  background: #00945f;  
+}  
+
+@keyframes slideUp {  
+  from { transform: translate(-50%, 100%); opacity: 0; }  
+  to { transform: translate(-50%, 0); opacity: 1; }  
+}  
+
+@media (max-width: 768px) {  
+  .nav-links, .header-btn { display: none; }  
+  .menu-toggle { display: flex; }  
+  .cookie-banner { width: 90%; font-size: 0.9rem; padding: 18px; }  
+}
+
+  </style>  
+</head>  
+<body>  
+  <canvas id="bg"></canvas>    <header>  
+    <div class="logo">  
+      <img src="../logo.png" alt="SafeNode Logo" />  
+      <h1>SafeNode</h1>  
+    </div>  
+    <nav class="nav-links">  
+      <a href="#home">Home</a>  
+      <a href="#services">Services</a>  
+      <a href="#contact">Contact</a>  
+    </nav>  
+    <button class="header-btn">Login</button>  
+    <div class="menu-toggle" id="menuToggle">  
+      <div></div><div></div><div></div>  
+    </div>  
+  </header>    <div class="mobile-menu" id="mobileMenu">  
+    <a href="#home">Home</a>  
+    <a href="#services">Services</a>  
+    <a href="#contact">Contact</a>  
+    <button class="btn" onclick="window.location.href='/auth'">Get Started</button>  
+  </div>    <section class="hero" id="home">  
+    <div class="hero-content">  
+      <h2>Empowering <span style="color: var(--primary);">Secure Transactions</span> for Everyone </h2>  
+      <p>SafeNode builds trust into every payment — protecting buyers, sellers, and freelancers through intelligent escrow and fintech innovation.</p>  
+      <div class="hero-buttons">  
+        <button onclick="window.location.href='/auth.html'" class="btn">Create Account</button>  
+        <button class="btn btn-outline" onclick="window.location.href='/help'">Learn more</button>  
+      </div>  
+    </div>  
+    <img src="../illustration.svg" alt="Secure Transaction Illustration" />  
+  </section>    <section class="services" id="services">  
+    <h3>Our Core Services</h3>  
+    <div class="service-grid">  
+      <div class="card">  
+        <h4>Escrow Protection</h4>  
+        <p>Ensure safe transactions between parties with our intelligent and transparent escrow system.</p>  
+      </div>  
+      <div class="card">  
+        <h4>Global Payments</h4>  
+        <p>Transfer funds securely across borders with encryption and zero stress.</p>  
+      </div>  
+      <div class="card">  
+        <h4>Smart Finance Tools</h4>  
+        <p>Automate and manage your transactions with fintech tools designed for everyone.</p>  
+      </div>  
+    </div>  
+  </section>    <section class="cta">  
+    <h3>Join the Future of Safe Digital Transactions</h3>  
+    <p>Experience a smarter, safer, and simpler way to manage money globally with confidence.</p>  
+    <button onclick="window.location.href='/auth.html'" class="btn">Create Account</button>  
+  </section>    <footer>  
+    <div>© <span id="year"></span> SafeNode — All Rights Reserved.</div>  
+    <div class="footer-links">Home · About · Services · Contact</div>  
+  </footer>    <div class="cookie-banner" id="cookieBanner">  
+    <p>We use cookies to make SafeNode work better for you and to analyze site usage. By clicking “Accept”, you agree to our use of cookies.</p>  
+    <button id="acceptCookies">Accept</button>  
+  </div>    <script>  
+    document.getElementById("year").textContent = new Date().getFullYear();  
+  
+    const menuToggle = document.getElementById("menuToggle");  
+    const mobileMenu = document.getElementById("mobileMenu");  
+    menuToggle.addEventListener("click", () => {  
+      mobileMenu.classList.toggle("active");  
+      menuToggle.classList.toggle("open");  
+    });  
+  
+    // Scroll animations  
+    const sr = ScrollReveal({  
+      distance: "40px",  
+      duration: 900,  
+      reset: true  
+    });  
+  
+    sr.reveal(".hero-content", { origin: "left" });  
+    sr.reveal(".hero img", { origin: "right" });  
+    sr.reveal(".card", { origin: "bottom", interval: 150 });  
+    sr.reveal(".cta", { origin: "bottom" });  
+  
+    // Cookie consent  
+    const cookieBanner = document.getElementById("cookieBanner");  
+    const acceptCookies = document.getElementById("acceptCookies");  
+  
+    if (!localStorage.getItem("safenode_cookies_accepted")) {  
+      setTimeout(() => cookieBanner.classList.add("active"), 1200);  
+    }  
+  
+    acceptCookies.addEventListener("click", () => {  
+      localStorage.setItem("safenode_cookies_accepted", "true");  
+      cookieBanner.classList.remove("active");  
+    });  
+  
+    // Floating background particles  
+    const canvas = document.getElementById("bg");  
+    const ctx = canvas.getContext("2d");  
+    let particles = [];  
+  
+    function resize() {  
+      canvas.width = window.innerWidth;  
+      canvas.height = window.innerHeight;  
+    }  
+    window.addEventListener("resize", resize);  
+    resize();  
+  
+    for (let i = 0; i < 60; i++) {  
+      particles.push({  
+        x: Math.random() * canvas.width,  
+        y: Math.random() * canvas.height,  
+        r: Math.random() * 2 + 1,  
+        dx: (Math.random() - 0.5) * 0.5,  
+        dy: (Math.random() - 0.5) * 0.5,  
+      });  
+    }  
+  
+    function draw() {  
+      ctx.clearRect(0, 0, canvas.width, canvas.height);  
+      ctx.fillStyle = "rgba(0,168,107,0.25)";  
+      particles.forEach((p) => {  
+        ctx.beginPath();  
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);  
+        ctx.fill();  
+        p.x += p.dx;  
+        p.y += p.dy;  
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;  
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;  
+      });  
+      requestAnimationFrame(draw);  
+    }  
+    draw();  
+  </script>  </body>  
+</html>  
