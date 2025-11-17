@@ -5,7 +5,7 @@ const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || "no-reply@safenode.com";
 
 // =========================================================
-// 📩 BASE EMAIL TEMPLATE
+// 📦 BASE EMAIL TEMPLATE
 // =========================================================
 function baseTemplate(content) {
   const appName = process.env.APP_NAME || "SafeNode";
@@ -30,7 +30,7 @@ function baseTemplate(content) {
 }
 
 // =========================================================
-// 🧩 EMAIL TEMPLATES
+// 📩 EMAIL TEMPLATES
 // =========================================================
 function getEmailTemplate(template, data = {}) {
   const appName = process.env.APP_NAME || "SafeNode";
@@ -40,11 +40,13 @@ function getEmailTemplate(template, data = {}) {
       return {
         subject: `Verify your ${appName} account`,
         html: baseTemplate(`
-          <h3>Welcome to ${appName}, ${data.name || "User"}!</h3>
+          <h3 style="color:#111827;">Welcome to ${appName}, ${data.name || "User"}!</h3>
           <p>Click below to verify your account.</p>
           <a href="${data.verifyLink}" 
              style="background:#00a86b;color:white;padding:12px 24px;border-radius:8px;
-             text-decoration:none;display:inline-block;">Verify Email</a>
+             text-decoration:none;display:inline-block;margin-top:10px;">
+             Verify Email
+          </a>
         `),
       };
 
@@ -52,11 +54,42 @@ function getEmailTemplate(template, data = {}) {
       return {
         subject: `Reset Your ${appName} Password`,
         html: baseTemplate(`
-          <h3>Hello ${data.name || "User"}</h3>
+          <h3 style="color:#111827;">Hello ${data.name || "User"}</h3>
           <p>Click below to reset your password.</p>
           <a href="${data.resetLink}" 
              style="background:#00a86b;color:white;padding:12px 24px;border-radius:8px;
-             text-decoration:none;display:inline-block;">Reset Password</a>
+             text-decoration:none;display:inline-block;margin-top:10px;">
+             Reset Password
+          </a>
+        `),
+      };
+
+    case "refund":
+      return {
+        subject: `Refund Processed - ${appName}`,
+        html: baseTemplate(`
+          <h3>Hello ${data.name}</h3>
+          <p>Your refund for <strong>${data.contractTitle}</strong> has been processed.</p>
+          <p>Amount refunded: <strong>₦${data.amount}</strong></p>
+        `),
+      };
+
+    case "fundReleased":
+      return {
+        subject: `Funds Released`,
+        html: baseTemplate(`
+          <h3>Funds Released!</h3>
+          <p>${data.buyerName} released funds for "<strong>${data.contractTitle}</strong>".</p>
+          <p>Amount: <strong>₦${data.amount}</strong></p>
+        `),
+      };
+
+    case "dispute":
+      return {
+        subject: `Dispute Opened`,
+        html: baseTemplate(`
+          <h3>Dispute Opened</h3>
+          <p>A dispute was opened for: <strong>${data.contractTitle}</strong>.</p>
         `),
       };
 
@@ -78,7 +111,7 @@ function getEmailTemplate(template, data = {}) {
 }
 
 // =========================================================
-// ✉️ SEND EMAIL VIA BREVO (AXIOS VERSION)
+// ✉️ SEND EMAIL VIA BREVO API
 // =========================================================
 async function sendTemplateEmail(template, to, data = {}) {
   const { subject, html } = getEmailTemplate(template, data);

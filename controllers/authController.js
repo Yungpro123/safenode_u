@@ -4,15 +4,16 @@ require("dotenv").config();
 const { createTronWallet } = require("../utils/tronWallet");
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
-// =============== BREVO SETUP ===============
+// =========================== BREVO SETUP ================================
 const Brevo = require("@getbrevo/brevo");
 const brevoApi = new Brevo.TransactionalEmailsApi();
+
 brevoApi.setApiKey(
   Brevo.TransactionalEmailsApiApiKeys.apiKey,
   process.env.BREVO_API_KEY
 );
 
-// =============== SEND EMAIL FUNCTION ===============
+// ======================= SEND BREVO EMAIL ===============================
 async function sendBrevoEmail(to, subject, html) {
   try {
     await brevoApi.sendTransacEmail({
@@ -36,45 +37,22 @@ async function sendBrevoEmail(to, subject, html) {
 /* =========================================================================
    🧩 REGISTER USER (BREVO VERSION)
 =========================================================================== */
-
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, country, currency } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required.",
-      });
-    }
+    if (!name || !email || !password)
+      return res.status(400).json({ success: false, message: "All fields are required." });
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Email already registered.",
-      });
-    }
+    if (existingUser)
+      return res.status(400).json({ success: false, message: "Email already registered." });
 
-    const hashedPassword = crypto
-      .createHash("sha256")
-      .update(password)
-      .digest("hex");
-
-    const userCurrency =
-      currency || (country?.toLowerCase() === "nigeria" ? "NGN" : "USDT");
-
+    const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
+    const userCurrency = currency || (country?.toLowerCase() === "nigeria" ? "NGN" : "USDT");
     const token = crypto.randomBytes(20).toString("hex");
 
-    let tronWallet = null;
-    try {
-      tronWallet = await createTronWallet();
-    } catch (err) {
-      console.error("❌ Failed to generate TRON wallet:", err.message);
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to generate wallet." });
-    }
+    let tronWallet = await createTronWallet();
 
     const newUser = new User({
       name,
@@ -95,14 +73,13 @@ exports.registerUser = async (req, res) => {
 
     await newUser.save();
 
-    const verifyUrl = `${process.env.APP_URL ||
-      "http://localhost:5000"}/api/auth/verify/${token}`;
+    const verifyUrl = `${FRONTEND_URL}/api/auth/verify/${token}`;
 
     const html = `
       <div style="font-family:'Inter',sans-serif;background:#f5f9f7;padding:40px 0;">
         <table align="center" cellpadding="0" cellspacing="0"
           style="max-width:520px;width:100%;background:#ffffff;border-radius:16px;
-                 box-shadow:0 4px 16px rgba(0,0,0,0.06);overflow:hidden;">
+                box-shadow:0 4px 16px rgba(0,0,0,0.06);overflow:hidden;">
           <tr>
             <td style="padding:18px 0;text-align:center;">
               <span style="font-weight:700;font-size:1.25rem;color:#00a86b;">SafeNode</span>
@@ -116,8 +93,8 @@ exports.registerUser = async (req, res) => {
               </p>
               <div style="text-align:center;margin:30px 0;">
                 <a href="${verifyUrl}"
-                   style="background:#00b55a;color:#fff;text-decoration:none;
-                          font-weight:600;padding:12px 28px;border-radius:10px;">
+                  style="background:#00b55a;color:#fff;text-decoration:none;
+                         font-weight:600;padding:12px 28px;border-radius:10px;">
                   Verify My Account
                 </a>
               </div>
@@ -137,16 +114,13 @@ exports.registerUser = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Registration Error:", error.message);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to register user." });
+    return res.status(500).json({ success: false, message: "Failed to register user." });
   }
 };
 
 /* =========================================================================
-   ✅ VERIFY EMAIL
+   🧩 VERIFY EMAIL
 =========================================================================== */
-
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
@@ -164,20 +138,9 @@ exports.verifyEmail = async (req, res) => {
           <meta charset="UTF-8" />
           <title>Account Verified — SafeNode</title>
           <style>
-            body {
-              font-family: Arial, sans-serif;
-              background: #f9fffa;
-              text-align: center;
-              padding-top: 100px;
-            }
+            body { font-family: Arial, sans-serif; background: #f9fffa; text-align: center; padding-top: 100px; }
             h2 { color: #00a86b; }
-            a {
-              padding: 10px 20px;
-              background: #00a86b;
-              color: #fff;
-              border-radius: 6px;
-              text-decoration: none;
-            }
+            a { padding: 10px 20px; background: #00a86b; color: #fff; border-radius: 6px; text-decoration: none; }
           </style>
         </head>
         <body>
@@ -192,22 +155,16 @@ exports.verifyEmail = async (req, res) => {
 };
 
 /* =========================================================================
-   ✅ LOGIN USER + SEND LOGIN ALERT
+   🧩 LOGIN USER + LOGIN ALERT EMAIL
 =========================================================================== */
-
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    let user = await User.findOne({ email });
-    if (!user)
-      return res.json({ success: false, message: "Invalid credentials." });
+    const user = await User.findOne({ email });
+    if (!user) return res.json({ success: false, message: "Invalid credentials." });
 
-    const passwordHash = crypto
-      .createHash("sha256")
-      .update(password)
-      .digest("hex");
-
+    const passwordHash = crypto.createHash("sha256").update(password).digest("hex");
     if (user.password !== passwordHash)
       return res.json({ success: false, message: "Invalid credentials." });
 
@@ -215,10 +172,9 @@ exports.loginUser = async (req, res) => {
       return res.json({ success: false, message: "Please verify your account first." });
 
     const sessionId = crypto.randomBytes(16).toString("hex");
-    const sessionExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-
     user.sessionId = sessionId;
-    user.sessionExpiresAt = sessionExpiresAt;
+    user.sessionExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+
     await user.save();
 
     res.cookie("sessionId", sessionId, {
@@ -231,7 +187,7 @@ exports.loginUser = async (req, res) => {
       <div style="background:#f4f6f8;padding:40px 0;font-family:'Inter',sans-serif;">
         <table align="center" cellpadding="0" cellspacing="0"
           style="max-width:520px;width:100%;background:#fff;border-radius:14px;
-                 box-shadow:0 4px 16px rgba(0,0,0,0.08);overflow:hidden;">
+                box-shadow:0 4px 16px rgba(0,0,0,0.08);overflow:hidden;">
           <tr>
             <td style="background:#00b55a;padding:25px 0;text-align:center;">
               <h1 style="color:#fff;font-size:24px;font-weight:700;">SafeNode</h1>
@@ -250,7 +206,7 @@ exports.loginUser = async (req, res) => {
               <div style="text-align:center;margin:30px 0;">
                 <a href="${FRONTEND_URL}/reset"
                   style="background:#00b55a;color:#fff;font-weight:600;
-                         padding:12px 28px;border-radius:8px;text-decoration:none;">
+                        padding:12px 28px;border-radius:8px;text-decoration:none;">
                   Reset Password
                 </a>
               </div>
@@ -278,19 +234,15 @@ exports.loginUser = async (req, res) => {
 };
 
 /* =========================================================================
-   ✅ FORGOT PASSWORD
+   🧩 FORGOT PASSWORD (BREVO)
 =========================================================================== */
-
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-
-    if (!email)
-      return res.status(400).json({ success: false, message: "Email is required" });
+    if (!email) return res.status(400).json({ success: false, message: "Email is required" });
 
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(404).json({ success: false, message: "User not found." });
+    if (!user) return res.status(404).json({ success: false, message: "User not found." });
 
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetTokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
@@ -305,7 +257,7 @@ exports.forgotPassword = async (req, res) => {
       <div style="background:#f4f6f8;padding:40px 0;font-family:'Inter',sans-serif;">
         <table align="center" cellpadding="0" cellspacing="0"
           style="max-width:520px;width:100%;background:#fff;border-radius:14px;
-                 box-shadow:0 4px 16px rgba(0,0,0,0.08);overflow:hidden;">
+               box-shadow:0 4px 16px rgba(0,0,0,0.08);overflow:hidden;">
           <tr>
             <td style="background:#00b55a;padding:25px 0;text-align:center;">
               <h1 style="color:#fff;font-size:24px;font-weight:700;">SafeNode</h1>
@@ -315,8 +267,7 @@ exports.forgotPassword = async (req, res) => {
             <td style="padding:35px 40px;text-align:left;">
               <h2 style="color:#083d2c;font-size:22px;">Reset Your Password</h2>
               <p style="color:#333;font-size:15px;">
-                Hi ${user.name}, click below to reset your password.  
-                This link expires in 1 hour.
+                Hi ${user.name}, click below to reset your password. This link expires in 1 hour.
               </p>
               <div style="text-align:center;margin:30px 0;">
                 <a href="${resetLink}"
@@ -332,33 +283,23 @@ exports.forgotPassword = async (req, res) => {
 
     await sendBrevoEmail(user.email, "Reset Your SafeNode Password", html);
 
-    return res.json({
-      success: true,
-      message: "Password reset link sent successfully.",
-    });
+    return res.json({ success: true, message: "Password reset link sent successfully." });
   } catch (err) {
     console.error("❌ Forgot password error:", err.message);
-    res.status(500).json({
-      success: false,
-      message: "Server error sending reset link.",
-    });
+    res.status(500).json({ success: false, message: "Server error sending reset link." });
   }
 };
 
 /* =========================================================================
-   ✅ RESET PASSWORD
+   🧩 RESET PASSWORD
 =========================================================================== */
-
 exports.resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
 
     if (!token || !password)
-      return res.status(400).json({
-        success: false,
-        message: "Missing token or password",
-      });
+      return res.status(400).json({ success: false, message: "Missing token or password" });
 
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -368,29 +309,17 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!user)
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired token",
-      });
+      return res.status(400).json({ success: false, message: "Invalid or expired token." });
 
-    user.password = crypto
-      .createHash("sha256")
-      .update(password)
-      .digest("hex");
+    user.password = crypto.createHash("sha256").update(password).digest("hex");
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
 
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
     await user.save();
 
-    return res.json({
-      success: true,
-      message: "Password reset successful. You can now log in.",
-    });
+    return res.json({ success: true, message: "Password reset successful." });
   } catch (err) {
-    console.error("❌ Reset password error:", err.message);
-    res.status(500).json({
-      success: false,
-      message: "Server error resetting password.",
-    });
+    console.error("❌ ResetPassword Error:", err.message);
+    res.status(500).json({ success: false, message: "Server error resetting password." });
   }
 };
