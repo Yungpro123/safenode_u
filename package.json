@@ -13,6 +13,7 @@
   "type": "commonjs",
   "dependencies": {
     "@bytescale/upload-widget": "^4.27.0",
+    "@getbrevo/brevo": "^3.0.1",
     "@tatumio/tatum": "^4.2.57",
     "axios": "^1.13.2",
     "cookie-parser": "^1.4.7",

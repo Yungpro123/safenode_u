@@ -1,8 +1,12 @@
 const axios = require("axios");
 const User = require("../models/User");
 const Transaction = require("../models/Transaction");
-const nodemailer = require("nodemailer");
 
+// Load env variables
+require("dotenv").config();
+
+// Brevo API key
+const BREVO_API_KEY = process.env.BREVO_API_KEY; // your new xkeysib key
 
 /**
  * @route POST /api/deposit/initiate
@@ -17,7 +21,7 @@ exports.initiateDeposit = async (req, res) => {
       return res.status(400).json({ message: "Amount and email are required" });
     }
 
-    const koboAmount = Math.round(amount * 100); // Paystack uses kobo (₦100 = 10000)
+    const koboAmount = Math.round(amount * 100); // Paystack uses kobo
 
     const response = await axios.post(
       "https://api.paystack.co/transaction/initialize",
@@ -36,7 +40,7 @@ exports.initiateDeposit = async (req, res) => {
 
     const { authorization_url, reference } = response.data.data;
 
-    // Optionally, record pending transaction
+    // Record pending transaction
     await Transaction.create({
       userEmail: email,
       type: "deposit",
@@ -63,7 +67,6 @@ exports.verifyDeposit = async (req, res) => {
     const { reference } = req.query;
     if (!reference) return res.status(400).json({ message: "Missing reference" });
 
-    // Verify transaction with Paystack
     const verifyRes = await axios.get(
       `https://api.paystack.co/transaction/verify/${reference}`,
       {
@@ -76,14 +79,12 @@ exports.verifyDeposit = async (req, res) => {
     const data = verifyRes.data.data;
 
     if (data.status === "success") {
-      // Find and update transaction
       const transaction = await Transaction.findOneAndUpdate(
         { reference },
         { status: "success" },
         { new: true }
       );
 
-      // Credit user wallet
       const user = await User.findOne({ email: data.customer.email });
       if (user) {
         user.wallet.balance = (user.wallet.balance || 0) + data.amount / 100;
@@ -101,6 +102,11 @@ exports.verifyDeposit = async (req, res) => {
   }
 };
 
+/**
+ * @route POST /api/withdraw
+ * @desc Request withdrawal
+ * @access Private
+ */
 exports.requestWithdrawal = async (req, res) => {
   try {
     const { id, amount, currency, bankName, accountNumber } = req.body;
@@ -108,7 +114,6 @@ exports.requestWithdrawal = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Find user by ID
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -116,11 +121,10 @@ exports.requestWithdrawal = async (req, res) => {
       return res.status(400).json({ message: "Insufficient balance" });
     }
 
-    // Deduct the amount immediately
-    user.wallet.balance = (user.wallet.balance || 0) - amount;
+    // Deduct amount
+    user.wallet.balance -= amount;
     await user.save();
 
-    // Record withdrawal request
     const transaction = await Transaction.create({
       userEmail: user.email,
       type: "withdraw",
@@ -131,34 +135,31 @@ exports.requestWithdrawal = async (req, res) => {
       walletAddress: `${bankName} | ${accountNumber}`,
     });
 
-    // Send email to admin
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: true,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: `"SafeNode" <${process.env.SMTP_USER}>`,
-      to: process.env.ADMIN_EMAIL,
-      subject: `New Withdrawal Request from ${user.name}`,
-      html: `
-        <h3>Withdrawal Request</h3>
-        <p><strong>User:</strong> ${user.name} (${user.email})</p>
-        <p><strong>Amount:</strong> ${amount} ${currency}</p>
-        <p><strong>Bank:</strong> ${bankName} | ${accountNumber}</p>
-        <p><strong>Transaction ID:</strong> ${transaction._id}</p>
-      `,
-    };
-
+    // Send email via Brevo
     try {
-      await transporter.sendMail(mailOptions);
+      await axios.post(
+        "https://api.brevo.com/v3/smtp/email",
+        {
+          sender: { name: "SafeNode", email: process.env.BREVO_SENDER_EMAIL },
+          to: [{ email: process.env.ADMIN_EMAIL }],
+          subject: `New Withdrawal Request from ${user.name}`,
+          htmlContent: `
+            <h3>Withdrawal Request</h3>
+            <p><strong>User:</strong> ${user.name} (${user.email})</p>
+            <p><strong>Amount:</strong> ${amount} ${currency}</p>
+            <p><strong>Bank:</strong> ${bankName} | ${accountNumber}</p>
+            <p><strong>Transaction ID:</strong> ${transaction._id}</p>
+          `,
+        },
+        {
+          headers: {
+            "api-key": BREVO_API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     } catch (emailErr) {
-      console.error("Email sending failed:", emailErr.message);
+      console.error("Brevo email sending failed:", emailErr.message);
     }
 
     res.json({
