@@ -16,8 +16,8 @@ const imagekit = new ImageKit({
 
 // Admin IDs
 const ADMIN_IDS = [
-  "690a46c4bf33f15be4beb51e",
-  "671bcf9a0b8c1c5a8e0d1a46"
+  "691bad5c89cfc448150ebd23",
+  "691baf0a387d6225106b8f71"
 ];
 
 /* =========================================================================
