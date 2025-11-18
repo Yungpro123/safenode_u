@@ -301,264 +301,251 @@
   </div>
 
   <script>
-    // === CONFIG ===
-    const API_BASE = "/api/disputes";
-    const contractId = new URLSearchParams(window.location.search).get("contract");
-    const userId = localStorage.getItem("ui");
-    const POLL_INTERVAL = 2500;
+  // === CONFIG ===
+  const API_BASE = "/api/disputes";
+  const contractId = new URLSearchParams(window.location.search).get("contract");
+  const userId = localStorage.getItem("ui");
+  const POLL_INTERVAL = 2500;
 
-    let senderRole = null;
-    let disputeId = null;
-    let imageBase64 = null;
-    let pollTimer = null;
-    let lastChecksum = null;
-    let lastMessageCount = 0;
+  let senderRole = null;
+  let disputeId = null;
+  let imageBase64 = null;
+  let pollTimer = null;
+  let lastChecksum = null;
+  let lastMessageCount = 0;
 
-    // Request notification permission immediately on load, plus show UI prompt if browser blocks it
-    function requestNotificationPermissionImmediate() {
-      // Show in-app enable button if permission is default or denied
-      try {
-        if (!("Notification" in window)) return; // not supported
-        const promptEl = document.getElementById('notifyPrompt');
-        const enableBtn = document.getElementById('enableNotifyBtn');
-
-        // If permission is default try requesting now (may be blocked by browser without user gesture)
-        if (Notification.permission === 'default') {
-          // Try requesting once
-          Notification.requestPermission().then(permission => {
-            // hide prompt if granted
-            if (permission === 'granted') {
-              promptEl.style.display = 'none';
-            } else {
-              // show in-app prompt so user can tap to allow (some browsers need gesture)
-              promptEl.style.display = 'flex';
-            }
-          }).catch(() => {
-            promptEl.style.display = 'flex';
-          });
-        } else if (Notification.permission === 'granted') {
-          promptEl.style.display = 'none';
-        } else {
-          // denied - show prompt so user knows notifications are disabled (they must change browser settings)
-          promptEl.style.display = 'flex';
-        }
-
-        enableBtn.onclick = () => {
-          // explicit user gesture - should reliably open the permission dialog
-          Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-              promptEl.style.display = 'none';
-            } else {
-              // remain visible so user can try again later
-              promptEl.style.display = 'flex';
-            }
-          }).catch(() => {
-            // ignore errors
-          });
-        };
-      } catch (e) {
-        // ignore
-      }
-    }
-
-    // Build a short preview text (max 80 chars)
-    function buildPreview(msg) {
-      if (!msg) return '';
-      if (msg.imageUrl && !msg.message) return '📎 Image';
-      const text = (msg.message || '').trim();
-      if (!text) return msg.imageUrl ? '📎 Image' : '';
-      return text.length > 80 ? text.slice(0, 77) + '...' : text;
-    }
-
-    // Show system/browser notification when tab is hidden
-    function showNotificationForMessage(msg) {
-      try {
-        if (!("Notification" in window)) return;
-        if (Notification.permission !== "granted") return;
-        if (!document.hidden) return; // only notify when tab is not focused
-
-        const sender = msg.senderName || msg.senderRole || 'SafeNode';
-        const body = buildPreview(msg) || 'New message';
-        const options = { body, icon: '/favicon.ico' };
-        new Notification(`${sender}`, options);
-        // We rely on system notification sound (no custom audio)
-      } catch (e) {
-        // fail silently
-      }
-    }
-
-    // small helper to compute checksum to avoid rerendering identical sets
-    function checksumMessages(messages){
-      return messages.map(m => (m._id||m.id||'') + '|' + (m.updatedAt||m.createdAt||'')).join('||');
-    }
-
-    // identify role (keeps your backend call intact)
-    async function identifyUserRole(){
-      try{
-        updateBrandStatus('Checking...');
-        requestNotificationPermissionImmediate(); // try to request immediately
-        const res = await fetch(`${API_BASE}/identify/${contractId}`, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ userId })
-        });
-        const data = await res.json();
-        if(!data.success){
-          alert('Unauthorized access');
-          window.location.href = '/dashboard.html';
-          return;
-        }
-        senderRole = data.role;
-        startPolling();
-        await loadDispute(); // initial load
-      }catch(err){
-        console.error('identifyUserRole',err);
-        updateBrandStatus('Offline');
-      }
-    }
-
-    async function loadDispute(){
-      try{
-        const res = await fetch(`${API_BASE}/${contractId}`);
-        const data = await res.json();
-        if(!data.success) return;
-        disputeId = data.dispute._id;
-        document.getElementById('contractTitle').textContent = 'Contract Title :'  + ' ' + data.dispute.contractTitle || 'Dispute';
-        const messages = data.dispute.messages || [];
-
-        // detect new messages and notify accordingly
-        const newCount = messages.length;
-        if (newCount > lastMessageCount) {
-          // determine last message(s) (slice from previous count)
-          const newly = messages.slice(Math.max(0, lastMessageCount));
-          if (newly && newly.length) {
-            const latest = newly[newly.length - 1];
-            // Avoid notifying for messages that are sent by user themselves
-            const isMine = (latest.senderId && String(latest.senderId) === String(userId)) || (latest.senderRole && senderRole && latest.senderRole === senderRole && !latest.senderId);
-            if (!isMine) {
-              showNotificationForMessage(latest);
-            }
-          }
-        }
-
-        // render only when changed
-        const cs = checksumMessages(messages);
-        if(cs !== lastChecksum){
-          lastChecksum = cs;
-          renderMessages(messages);
-        }
-
-        lastMessageCount = messages.length;
-        updateBrandStatus('Online');
-      }catch(err){
-        console.error('loadDispute',err);
-        updateBrandStatus('Offline');
-      }
-    }
-
-    function startPolling(){
-      stopPolling();
-      pollTimer = setInterval(loadDispute, POLL_INTERVAL);
-    }
-    function stopPolling(){ if(pollTimer) clearInterval(pollTimer); pollTimer = null; }
-
-    // Render messages - user messages to the right, others to left
-    function renderMessages(messages) {
-  const chatBox = document.getElementById('chatBox');
-  const composer = document.querySelector('.composer-inner');
-  const messageInput = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
-  
-  chatBox.innerHTML = '';
-  if (!messages.length) {
-    const p = document.createElement('p');
-    p.style.textAlign = 'center';
-    p.style.color = '#9aa0a6';
-    p.style.fontSize = '0.95rem';
-    p.style.marginTop = '12px';
-    p.textContent = 'No messages yet.';
-    chatBox.appendChild(p);
-  } else {
-    messages.forEach(msg => {
-      const isMine = (msg.senderId && String(msg.senderId) === String(userId)) ||
-                     (msg.senderRole && senderRole && msg.senderRole === senderRole && !msg.senderId);
-      const row = document.createElement('div');
-      row.className = 'row ' + (isMine ? 'right' : 'left');
-
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble ' + (msg.senderRole === 'admin'
-        ? 'admin'
-        : (isMine ? 'me' : 'other'));
-
-      // Role label
-      if (msg.senderRole) {
-        const roleEl = document.createElement('div');
-        roleEl.className = 'role';
-        if (msg.senderRole === 'admin') {
-          roleEl.textContent = 'SafeNode Admin';
-        } else if (!isMine) {
-          roleEl.textContent = (msg.senderName || msg.senderRole || '').toUpperCase();
-        }
-        if (msg.senderRole === 'admin' || !isMine) {
-          bubble.appendChild(roleEl);
-        }
-      }
-
-      // Message text
-      if (msg.message) {
-        const text = document.createElement('div');
-        text.innerHTML = escapeHtml(msg.message).replace(/\n/g, '<br>');
-        bubble.appendChild(text);
-      }
-
-      // Image
-      if (msg.imageUrl) {
-        const img = document.createElement('img');
-        img.src = msg.imageUrl;
-        img.className = 'thumb';
-        img.alt = 'Attachment';
-        img.onclick = () => openModal(msg.imageUrl);
-        bubble.appendChild(img);
-      }
-
-      row.appendChild(bubble);
-      chatBox.appendChild(row);
-    });
+  // Validate IDs
+  if (!contractId) {
+    alert("Invalid contract. Please go back to dashboard.");
+    window.location.href = "/dashboard.html";
+  }
+  if (!userId) {
+    alert("You must be logged in.");
+    window.location.href = "/login.html";
   }
 
-  // scroll to bottom
-  chatBox.scrollTop = chatBox.scrollHeight;
+  // Request notification permission immediately
+  function requestNotificationPermissionImmediate() {
+    try {
+      if (!("Notification" in window)) return;
+      const promptEl = document.getElementById('notifyPrompt');
+      const enableBtn = document.getElementById('enableNotifyBtn');
 
-  // === message count logic ===
-  const myMessages = messages.filter(m => m.senderRole === senderRole);
-  const myCount = myMessages.length;
-  const remaining = 1000 - myCount;
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          promptEl.style.display = permission === 'granted' ? 'none' : 'flex';
+        }).catch(() => { promptEl.style.display = 'flex'; });
+      } else if (Notification.permission === 'granted') {
+        promptEl.style.display = 'none';
+      } else {
+        promptEl.style.display = 'flex';
+      }
 
-  const infoElId = 'message-limit-info';
-  let infoEl = document.getElementById(infoElId);
-
-  if (!infoEl) {
-    infoEl = document.createElement('div');
-    infoEl.id = infoElId;
-    infoEl.style.textAlign = 'center';
-    infoEl.style.fontSize = '0.85rem';
-    infoEl.style.marginTop = '6px';
-    infoEl.style.color = '#777';
-    composer.parentElement.appendChild(infoEl);
+      enableBtn.onclick = () => {
+        Notification.requestPermission().then(permission => {
+          promptEl.style.display = permission === 'granted' ? 'none' : 'flex';
+        }).catch(() => {});
+      };
+    } catch (e) {}
   }
 
-}
+  // Build message preview
+  function buildPreview(msg) {
+    if (!msg) return '';
+    if (msg.imageUrl && !msg.message) return '📎 Image';
+    const text = (msg.message || '').trim();
+    if (!text) return msg.imageUrl ? '📎 Image' : '';
+    return text.length > 80 ? text.slice(0, 77) + '...' : text;
+  }
 
-function attachComposerEvents() {
+  // Show browser notification
+  function showNotificationForMessage(msg) {
+    try {
+      if (!("Notification" in window)) return;
+      if (Notification.permission !== "granted") return;
+      if (!document.hidden) return;
+
+      const sender = msg.senderName || msg.senderRole || 'SafeNode';
+      const body = buildPreview(msg) || 'New message';
+      new Notification(`${sender}`, { body, icon: '/favicon.ico' });
+    } catch (e) {}
+  }
+
+  // Checksum to avoid re-rendering same messages
+  function checksumMessages(messages){
+    return messages.map(m => (m._id||m.id||'') + '|' + (m.updatedAt||m.createdAt||'')).join('||');
+  }
+
+  // Identify user role
+  async function identifyUserRole(){
+    try {
+      updateBrandStatus('Checking...');
+      requestNotificationPermissionImmediate();
+
+      const res = await fetch(`${API_BASE}/identify/${contractId}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+
+      if(!data.success){
+        alert('Unauthorized access');
+        window.location.href = '/dashboard.html';
+        return;
+      }
+
+      senderRole = data.role;
+      startPolling();
+      await loadDispute(); // initial load
+    } catch(err) {
+      console.error('identifyUserRole', err);
+      updateBrandStatus('Offline');
+    }
+  }
+
+  async function loadDispute(){
+    try {
+      const res = await fetch(`${API_BASE}/${contractId}`);
+      const data = await res.json();
+      if(!data.success) return;
+
+      disputeId = data.dispute._id;
+      document.getElementById('contractTitle').textContent = 'Contract Title: ' + (data.dispute.contractTitle || 'Dispute');
+
+      const messages = data.dispute.messages || [];
+      const newCount = messages.length;
+
+      if (newCount > lastMessageCount) {
+        const newly = messages.slice(lastMessageCount);
+        if (newly.length) {
+          const latest = newly[newly.length - 1];
+          const isMine = (latest.senderId && latest.senderId === userId) ||
+                        (latest.senderRole && latest.senderRole === senderRole && !latest.senderId);
+          if (!isMine) showNotificationForMessage(latest);
+        }
+      }
+
+      const cs = checksumMessages(messages);
+      if(cs !== lastChecksum){
+        lastChecksum = cs;
+        renderMessages(messages);
+      }
+
+      lastMessageCount = messages.length;
+      updateBrandStatus('Online');
+
+    } catch(err) {
+      console.error('loadDispute', err);
+      updateBrandStatus('Offline');
+    }
+  }
+
+  function startPolling(){ stopPolling(); pollTimer = setInterval(loadDispute, POLL_INTERVAL); }
+  function stopPolling(){ if(pollTimer) clearInterval(pollTimer); pollTimer = null; }
+
+  // Render messages
+  function renderMessages(messages) {
+    const chatBox = document.getElementById('chatBox');
+    const composer = document.querySelector('.composer-inner');
+
+    chatBox.innerHTML = '';
+    if (!messages.length) {
+      const p = document.createElement('p');
+      p.style.textAlign = 'center';
+      p.style.color = '#9aa0a6';
+      p.style.fontSize = '0.95rem';
+      p.style.marginTop = '12px';
+      p.textContent = 'No messages yet.';
+      chatBox.appendChild(p);
+    } else {
+      messages.forEach(msg => {
+        const isMine = (msg.senderId && msg.senderId === userId) ||
+                       (msg.senderRole && senderRole && msg.senderRole === senderRole && !msg.senderId);
+        const row = document.createElement('div');
+        row.className = 'row ' + (isMine ? 'right' : 'left');
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble ' + (msg.senderRole === 'admin' ? 'admin' : (isMine ? 'me' : 'other'));
+
+        if(msg.senderRole){
+          const roleEl = document.createElement('div');
+          roleEl.className = 'role';
+          if(msg.senderRole === 'admin') roleEl.textContent = 'SafeNode Admin';
+          else if(!isMine) roleEl.textContent = (msg.senderName || msg.senderRole || '').toUpperCase();
+          if(msg.senderRole === 'admin' || !isMine) bubble.appendChild(roleEl);
+        }
+
+        if(msg.message){
+          const text = document.createElement('div');
+          text.innerHTML = escapeHtml(msg.message).replace(/\n/g,'<br>');
+          bubble.appendChild(text);
+        }
+
+        if(msg.imageUrl){
+          const img = document.createElement('img');
+          img.src = msg.imageUrl;
+          img.className = 'thumb';
+          img.alt = 'Attachment';
+          img.onclick = () => openModal(msg.imageUrl);
+          bubble.appendChild(img);
+        }
+
+        row.appendChild(bubble);
+        chatBox.appendChild(row);
+      });
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // Send message
+  async function sendMessage(){
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    if(!message && !imageBase64) return;
+
+    if(!disputeId){
+      alert("Dispute not loaded yet.");
+      return;
+    }
+
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true; sendBtn.style.opacity = 0.7;
+
+    try {
+      const res = await fetch(`${API_BASE}/${disputeId}/message`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ senderRole, message, imageBase64 })
+      });
+      const data = await res.json();
+
+      if(data.success){
+        input.value = '';
+        imageBase64 = null;
+        hidePreview();
+        if(data.dispute && data.dispute.messages){
+          lastChecksum = checksumMessages(data.dispute.messages);
+          renderMessages(data.dispute.messages);
+        } else loadDispute();
+      } else console.warn('send failed', data);
+    } catch(err){
+      console.error('sendMessage', err);
+    } finally {
+      sendBtn.disabled = false; sendBtn.style.opacity = 1;
+    }
+  }
+
+  // Image preview
   const fileInput = document.getElementById('image');
   const previewContainer = document.getElementById('previewContainer');
   const previewThumb = document.getElementById('previewThumb');
   const removePreviewBtn = document.getElementById('removePreview');
-  const sendBtn = document.getElementById('sendBtn');
 
   fileInput.addEventListener('change', () => {
     const f = fileInput.files[0];
-    if (!f) return;
+    if(!f) return;
     const reader = new FileReader();
     reader.onload = () => {
       imageBase64 = reader.result.split(',')[1];
@@ -568,119 +555,48 @@ function attachComposerEvents() {
     reader.readAsDataURL(f);
   });
 
-  removePreviewBtn.addEventListener('click', () => {
+  removePreviewBtn.addEventListener('click', hidePreview);
+  function hidePreview(){
     imageBase64 = null;
     previewThumb.src = '';
     previewContainer.style.display = 'none';
     fileInput.value = '';
+  }
+
+  // Modal
+  function openModal(src){
+    document.getElementById('modalImg').src = src;
+    document.getElementById('imageModal').style.display = 'flex';
+  }
+  function closeModal(){
+    document.getElementById('imageModal').style.display = 'none';
+    document.getElementById('modalImg').src = '';
+  }
+  document.getElementById('closeModal')?.addEventListener('click', closeModal);
+  document.addEventListener('click', e => { if(e.target.id==='imageModal') closeModal(); });
+
+  // Status helper
+  function updateBrandStatus(txt){ document.getElementById('brandSide').textContent = txt || ''; }
+
+  // HTML escape
+  function escapeHtml(unsafe){
+    return String(unsafe).replaceAll('&','&amp;')
+                         .replaceAll('<','&lt;')
+                         .replaceAll('>','&gt;')
+                         .replaceAll('"','&quot;')
+                         .replaceAll("'","&#039;");
+  }
+
+  // Keyboard shortcuts
+  document.getElementById('messageInput').addEventListener('keydown', e => {
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
   });
+  document.getElementById('sendBtn').addEventListener('click', sendMessage);
 
-  sendBtn.addEventListener('click', sendMessage);
-}
-
-    // send message
-    async function sendMessage(){
-      const input = document.getElementById('messageInput');
-      const message = input.value.trim();
-      if(!message && !imageBase64) return;
-
-      const sendBtn = document.getElementById('sendBtn');
-      sendBtn.disabled = true; sendBtn.style.opacity = 0.7;
-
-      try{
-        const res = await fetch(`${API_BASE}/${disputeId}/message`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ senderRole, message, imageBase64 })
-        });
-        const data = await res.json();
-        if(data.success){
-          input.value = '';
-          imageBase64 = null;
-          hidePreview();
-          if(data.dispute && data.dispute.messages){
-            lastChecksum = checksumMessages(data.dispute.messages);
-            renderMessages(data.dispute.messages);
-          } else {
-            loadDispute();
-          }
-        } else {
-          console.warn('send failed', data);
-        }
-      }catch(err){
-        console.error('sendMessage',err);
-      }finally{
-        sendBtn.disabled = false; sendBtn.style.opacity = 1;
-      }
-    }
-
-    // image preview & upload
-    const fileInput = document.getElementById('image');
-    const previewContainer = document.getElementById('previewContainer');
-    const previewThumb = document.getElementById('previewThumb');
-    const removePreviewBtn = document.getElementById('removePreview');
-
-    fileInput.addEventListener('change', () => {
-      const f = fileInput.files[0];
-      if(!f) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        imageBase64 = reader.result.split(',')[1];
-        previewThumb.src = reader.result;
-        previewContainer.style.display = 'flex';
-      };
-      reader.readAsDataURL(f);
-    });
-
-    removePreviewBtn.addEventListener('click', hidePreview);
-    function hidePreview(){
-      imageBase64 = null;
-      previewThumb.src = '';
-      previewContainer.style.display = 'none';
-      fileInput.value = '';
-    }
-
-    // modal
-    function openModal(src){
-      document.getElementById('modalImg').src = src;
-      document.getElementById('imageModal').style.display = 'flex';
-    }
-    function closeModal(){
-      document.getElementById('imageModal').style.display = 'none';
-      document.getElementById('modalImg').src = '';
-    }
-    function closeModalOnOutside(e){
-      if(e.target.id === 'imageModal') closeModal();
-    }
-    try { document.getElementById('closeModal').addEventListener('click', closeModal); } catch(e){}
-
-    // brand status helper
-    function updateBrandStatus(txt){
-      document.getElementById('brandSide').textContent = txt || '';
-    }
-
-    // basic html escape
-    function escapeHtml(unsafe){
-      return String(unsafe).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-    }
-
-    // keyboard shortcuts
-    document.getElementById('messageInput').addEventListener('keydown', (e) => {
-      if(e.key === 'Enter' && !e.shiftKey){
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-    document.getElementById('sendBtn').addEventListener('click', sendMessage);
-
-    // init
-    identifyUserRole();
-
-    // pause polling when hidden (kept active); refresh on focus
-    document.addEventListener('visibilitychange', () => {
-      if(!document.hidden) loadDispute();
-    });
-    window.addEventListener('beforeunload', () => stopPolling());
-  </script>
+  // Init
+  identifyUserRole();
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) loadDispute(); });
+  window.addEventListener('beforeunload', stopPolling);
+</script>
 </body>
 </html>

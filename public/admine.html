@@ -135,7 +135,7 @@ function displayContracts(list) {
       btn.className = "view-btn";
       btn.innerText = "View Dispute";
       btn.onclick = () => {
-        window.location.href = "/dispute.html?id=" + c._id;
+        window.location.href = "/dispute?contract=" + c._id;
       };
       card.appendChild(btn);
     }

@@ -224,7 +224,6 @@ exports.loginUser = async (req, res) => {
           </tr>
         </table>
       </div>`;
-console.log(user._id)
     sendBrevoEmail(user.email, "New Login Detected — SafeNode", loginHtml);
 
     return res.json({
