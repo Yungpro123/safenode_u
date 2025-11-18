@@ -17,7 +17,7 @@ const imagekit = new ImageKit({
 
 // Admin IDs
 const ADMIN_IDS = [
-  "691bf40ee13523fe072e5dc7",
+  "691c82ccc95b9d108e162611",
   "691bf4a400eea1b4c2d42bf0"
 ];
 
