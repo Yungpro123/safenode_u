@@ -17,6 +17,7 @@
  <div id="loader">
   <div class="spinner"></div>
 </div>
+
   <!-- top-right menu button -->
   <button class="menu-toggle" id="menuToggle">☰ Menu</button>
 
@@ -435,7 +436,7 @@
     const amount = params.get("amount");
 
     if (depositStatus === "success") {
-      showToast(`Deposit of ₦${amount} was successful!`);
+      showToast(`✅ Deposit of ₦${amount} was successful!`);
       // Remove query from URL after showing toast
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -443,18 +444,8 @@
 
   
 </script>
-<!-- Overlay -->  <div id="onboardingOverlay"></div>  <!-- Tooltip -->  <div id="onboardingTooltip">    <div id="onboardingMsg" style="margin-bottom:10px;"></div>    
-<div style="text-align:right;">    
-    <button id="onboardingNext">Next</button>    
-</div>
-
-
-</div>  <!-- Menu Tooltip -->  <div id="menuTooltip">    
-    This is your menu. Use it to navigate Wallet, Disputes, Settings, and Help.    
-    <div style="margin-top:10px; text-align:right;">    
-        <button id="menuDone">Done</button>    
-    </div>    
-</div> 
+</body>
+</html>
 <!-- Overlay -->
 <div id="onboardingOverlay"></div>
 
@@ -537,6 +528,7 @@
     }
 }
 </style>
+
 <script>    
 (function(){    
     const LS_DONE = "onboarding_done";    
@@ -650,6 +642,7 @@ window.addEventListener("load", ()=>setTimeout(showStep, 500));
 
 })();
 </script>
-</body>
-</html>
-        
+<script src="/js/main.js"></script>
+<script src="/js/wallet.js"></script>
+<script src="/js/dis.js"></script>
+<script src="/js/De.js"></script>
