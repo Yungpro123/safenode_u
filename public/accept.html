@@ -6,7 +6,7 @@
   <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
   <title>SafeNode — Accept Contract</title>
-<script src="/dashboard/actiobs.js"></script>
+<script src="/dashboard/actions.js"></script>
   <style>
     :root {
       --primary: #00a86b;
@@ -158,7 +158,7 @@
       position: fixed;
       top:0; left:0;
       width:100%; height:100%;
-      background: #fff;
+      background: rgba(0,0,0,0.45);
       display:none;
       align-items:center;
       justify-content:center;
@@ -172,11 +172,11 @@
       padding:40px 30px;
       text-align:center;
       border-radius: var(--radius);
-      background: #fff;
+      background: var(--card-bg);
       box-shadow: var(--shadow);
       transform: scale(0.9);
       opacity:0;
-      transition: all 0.1s ease;
+      transition: all 0.25s ease;
       position:relative;
     }
 
@@ -266,7 +266,7 @@ const contractId = new URLSearchParams(window.location.search).get("contract");
 let sellerEmail = null;
 let buyerEmail = null;
 
-
+const showMessage = (text,type="error")=>{messageBox.textContent=text;messageBox.className=`msg ${type}`;};
 if(!contractId) window.location.href="/404";
 
 async function getUserEmail(){
@@ -277,7 +277,7 @@ async function getUserEmail(){
     const data = await res.json();
     if(data.success && data.user?.email) sellerEmail = data.user.email;
     else throw new Error();
-  }catch{ showToast("Please log in again.","error"); setTimeout(()=>window.location.href="/auth",1200);}
+  }catch{ showMessage("Please log in again.","error"); setTimeout(()=>window.location.href="/auth",1200);}
 }
 
 async function loadContract(){
@@ -311,8 +311,8 @@ popupClose.addEventListener("click",closePopup);
 confirmNo.addEventListener("click",closePopup);
 
 acceptBtn.addEventListener("click",()=>{
-  if(!sellerEmail) return showToast("Please wait...","error");
-  if(sellerEmail.toLowerCase()===buyerEmail.toLowerCase()) return showToast("You cannot accept your own contract.","error");
+  if(!sellerEmail) return showMessage("Please wait...","error");
+  if(sellerEmail.toLowerCase()===buyerEmail.toLowerCase()) return showMessage("You cannot accept your own contract.","error");
   openPopup();
 });
 
@@ -322,9 +322,9 @@ confirmYes.addEventListener("click",async ()=>{
   try{
     const res=await fetch(`/api/contracts/accept/${contractId}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:sellerEmail})});
     const data = await res.json();
-    if(data.success){showToast("Contract Accepted","success");acceptBtn.textContent="Accepted"; window.location.href=`/accepted?id=${contractId}`;}
-    else{showToast(data.message||"Failed to accept contract.","error");acceptBtn.textContent="Accept Contract";}
-  }catch{showToast("Network error.","error");acceptBtn.textContent="Accept Contract";}
+    if(data.success){acceptBtn.textContent="Accepted"; window.location.href=`/accepted?id=${contractId}`;}
+    else{showMessage(data.message||"Failed to accept contract.","error");acceptBtn.textContent="Accept Contract";}
+  }catch{showMessage("Network error.","error");acceptBtn.textContent="Accept Contract";}
   finally{acceptBtn.disabled=false;}
 });
 
@@ -336,13 +336,7 @@ document.addEventListener("DOMContentLoaded",async ()=>{
 });
 
 // Toast
-function showToast(msg,type="info"){
-  const toast = document.getElementById("toast");
-  toast.textContent = msg;
-  toast.style.background = type==="error"?"#e74c3c":"#333";
-  toast.classList.add("show");
-  setTimeout(()=>toast.classList.remove("show"),3000);
-}
+
 </script>
 </body>
 </html>
