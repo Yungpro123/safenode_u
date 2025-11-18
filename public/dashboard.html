@@ -443,10 +443,78 @@
 
   
 </script>
-</body>
-</html>
+<!-- Overlay -->  <div id="onboardingOverlay"></div>  <!-- Tooltip -->  <div id="onboardingTooltip">    <div id="onboardingMsg" style="margin-bottom:10px;"></div>    
+<div style="text-align:right;">    
+    <button id="onboardingNext">Next</button>    
+</div>
 
-<script src="/js/main.js"></script>
-<script src="/js/wallet.js"></script>
-<script src="/js/dis.js"></script>
-<script src="/js/De.js"></script>
+</div>  <!-- Menu Tooltip -->  <div id="menuTooltip">    
+    This is your menu. Use it to navigate Wallet, Disputes, Settings, and Help.    
+    <div style="margin-top:10px; text-align:right;">    
+        <button id="menuDone">Done</button>    
+    </div>    
+</div> 
+<!-- Overlay -->
+<div id="onboardingOverlay"></div>
+
+<!-- Tooltip -->
+<div id="onboardingTooltip">
+    <div id="onboardingMsg"></div>
+    <div style="text-align:right; margin-top:10px;">
+        <button id="onboardingNext">Next</button>
+    </div>
+</div>
+
+<!-- Menu Tooltip -->
+<div id="menuTooltip">
+    <div style="margin-bottom:10px;">This is your menu. Use it to navigate Wallet, Disputes, Settings, and Help.</div>
+    <div style="text-align:right;">
+        <button id="menuDone">Done</button>
+    </div>
+</div>
+
+<style>
+/* Overlay */
+#onboardingOverlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+    display: none;
+    backdrop-filter: blur(2px);
+}
+
+/* Tooltips */
+#onboardingTooltip, #menuTooltip {
+    position: absolute;
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    max-width: 320px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    z-index: 1000;
+    display: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Highlighted elements */
+.onboarding-highlight {
+    position: relative;
+    z-index: 1001 !important;
+    box-shadow: 0 0 0 4px #00a86b inset, 0 0 15px #00a86b;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Buttons */
+#onboardingNext, #menuDone {
+    background: #00a86b;
+    color: #fff;
+    border: none;
+    border-ra
