@@ -435,7 +435,7 @@
     const amount = params.get("amount");
 
     if (depositStatus === "success") {
-      showToast(`✅ Deposit of ₦${amount} was successful!`);
+      showToast(`Deposit of ₦${amount} was successful!`);
       // Remove query from URL after showing toast
       window.history.replaceState({}, document.title, window.location.pathname);
     }

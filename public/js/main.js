@@ -141,8 +141,6 @@ let sellernamme = null;
   // 🧾 API: Request Funds (seller)
 async function requestFunds(contractId) {
   try {
-    alert(contractId)
-    alert()
     const res = await fetch(`/api/contracts/request/`, {
       method: "POST",
       headers: {

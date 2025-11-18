@@ -33,6 +33,16 @@ async function sendBrevoEmail(to, subject, html) {
     return false;
   }
 }
+function generateShortToken(length = 4) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < length; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+// Usage
 
 /* =========================================================================
    🧩 REGISTER USER (BREVO VERSION)
@@ -50,8 +60,8 @@ exports.registerUser = async (req, res) => {
 
     const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
     const userCurrency = currency || (country?.toLowerCase() === "nigeria" ? "NGN" : "USDT");
-    const token = crypto.randomBytes(20).toString("hex");
-
+    const token = generateShortToken(4); // e.g., 'aB3dE9'
+  
     let tronWallet = await createTronWallet();
 
     const newUser = new User({
@@ -214,7 +224,7 @@ exports.loginUser = async (req, res) => {
           </tr>
         </table>
       </div>`;
-
+console.log(user._id)
     sendBrevoEmail(user.email, "New Login Detected — SafeNode", loginHtml);
 
     return res.json({
@@ -227,6 +237,7 @@ exports.loginUser = async (req, res) => {
       currency: user.currency,
       wallet: user.wallet,
     });
+    
   } catch (err) {
     console.error("❌ Login Error:", err.message);
     res.status(500).json({ success: false, message: "Server error." });

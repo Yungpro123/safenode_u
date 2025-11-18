@@ -87,7 +87,9 @@ exports.getOrCreateDispute = async (req, res) => {
       await sendTemplateEmail("dispute", contract.sellerEmail, {
         contractTitle: contract.title
       });
-
+      await sendTemplateEmail("dispute",'ketaltd19@gmail.com', {
+        contractTitle: contract.title
+      });
       await sendTemplateEmail("dispute", contract.buyer, {
         contractTitle: contract.title
       });

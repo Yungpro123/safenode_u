@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     if (isSeller)
       document.getElementById("requestFundsBtn")?.addEventListener("click", () => {
-        if (confirm(`Request funds for "${data.title}"?`)) requestFunds(data.id);
+        requestFunds(data.id);
       });
 
     document.getElementById("initiateDisputeBtn")?.addEventListener("click", async () => {

@@ -1,252 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />    <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />    
+<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
-  
-  <title>SafeNode - Contract Accepted</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<title>SafeNode - Contract Receipt</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="/dashboard/actions.js"></script>
+<style>
+:root {
+  --primary:#00a86b;
+  --primary-light:#d4f7e8;
+  --text-dark:#1a1a1a;
+  --text-light:#777;
+  --card-bg:#ffffffcc;
+  --radius:20px;
+  --shadow:0 15px 40px rgba(0,0,0,0.1);
+}
+body {
+  font-family:'Inter',sans-serif;
+  margin:0; padding:20px;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#f4fdf7 0%,#f8fbff 100%);
+  background-size:600% 600%;
+  animation:gradientShift 15s ease infinite;
+  position:relative;
+  overflow:hidden;
+}
+@keyframes gradientShift{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+canvas#bg{
+  position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;
+}
 
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #f4fdf7 0%, #f8fbff 100%);
-      color: #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .receipt-container {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 6px 25px rgba(0,0,0,0.08);
-      padding: 40px 30px;
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-      position: relative;
-    }
-
-    .logo {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 1rem;
-      gap: 10px;
-    }
-
-    .logo img {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-    }
-
-    .logo span {
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: #00a86b;
-    }
-
-    .checkmark {
-      font-size: 80px;
-      color: #00bb55;
-      margin: 15px 0;
-    }
-
-    h2 { margin: 10px 0; color: #0b513f; font-weight: 700; }
-    p.subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
-
-    .details {
-      background: #f7f9fc;
-      border-radius: 10px;
-      padding: 16px;
-      text-align: left;
-      font-size: 14px;
-      margin-bottom: 20px;
-    }
-
-    .details p { margin: 6px 0; color: #333; }
-    .details b { color: #000; }
-
-    .share-info {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 20px;
-      word-wrap: break-word;
-    }
-
-    .share-info a {
-      color: #00bb55;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .share-info a:hover { text-decoration: underline; }
-
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .btn {
-      flex: 1;
-      background: #00a86b;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .btn:hover { background: #009a47; }
-    .footer { margin-top: 25px; font-size: 12px; color: #aaa; }
-  </style>
+.receipt-container{
+  position:relative; z-index:2;
+  width:100%; max-width:460px;
+  background:var(--card-bg);
+  border-radius:var(--radius);
+  padding:40px 30px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+  text-align:center;
+  animation:fadeIn 0.6s ease;
+}
+.logo{
+  display:flex; align-items:center; justify-content:center; margin-bottom:15px; gap:10px;
+}
+.logo img{width:34px;height:34px;border-radius:9px;box-shadow:0 4px 14px rgba(0,0,0,0.06);}
+.logo span{font-weight:700;font-size:1.25rem;color:var(--primary);}
+.checkmark{font-size:80px;color:#00bb55;margin:10px 0; display:none;}
+h2{margin:10px 0;color:#0b513f;font-weight:700;}
+p.subtitle{color:#666;font-size:14px;margin-bottom:20px;}
+.details{
+  background:#f7f9fc;border-radius:12px;padding:16px;text-align:left;font-size:14px;margin-bottom:20px;
+}
+.details p{margin:6px 0;color:#333;}
+.details b{color:#000;}
+.actions{display:flex;justify-content:center; gap:10px;}
+.btn{
+  flex:1;background:var(--primary);color:#fff;border:none;padding:12px;border-radius:12px;font-weight:600;cursor:pointer;transition:all 0.25s;
+}
+.btn:hover{background:#009a47;}
+#toast{
+  position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+  background:#333; color:#fff; padding:12px 20px; border-radius:8px;
+  font-size:14px; opacity:0; pointer-events:none; z-index:9999;
+  transition:opacity 0.3s ease;
+}
+#toast.show{opacity:1; pointer-events:auto;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);}}
+</style>
 </head>
-
 <body>
-  <div class="receipt-container" id="receipt">
-    <div class="logo">
-      <img src="../logo.png" alt="SafeNode Logo" />
-      <span>SafeNode</span>
-    </div>
-
-    <h2 id="statusTitle">Loading...</h2>
-    <p class="subtitle" id="statusSubtitle">Please wait while we fetch your contract.</p>
-
-    <div class="details" id="receiptDetails">
-      <p><b>Contract ID:</b> —</p>
-      <p><b>Amount:</b> —</p>
-      <p><b>Status:</b> —</p>
-      <p><b>Date:</b> —</p>
-    </div>
-
-    <span class="share-info" id="shareInfo">
-      <a style="display:none" id="contractLink" href="#" target="_blank"></a>
-    </span>
-
-    <div class="actions" id="actions">
-      <button class="btn" id="downloadBtn">Download Receipt</button>
-    </div>
-
-    <p class="footer">Powered by SafeNode Escrow Services</p>
+<canvas id="bg"></canvas>
+<div class="receipt-container" id="receipt">
+  <div class="logo">
+    <img src="../logo.png" alt="SafeNode Logo" />
+    <span>SafeNode</span>
   </div>
 
-  <script>
-    // 🧩 Detect backend automatically
-    
+  <div class="checkmark" id="checkmark"></div>
+  <h2 id="statusTitle">Loading...</h2>
+  <p class="subtitle" id="statusSubtitle">Please wait while we fetch your contract.</p>
 
-    const params = new URLSearchParams(window.location.search);
-    const contractId = params.get("id");
+  <div class="details" id="receiptDetails">
+    <p><b>Contract ID:</b> —</p>
+    <p><b>Amount:</b> —</p>
+    <p><b>Status:</b> —</p>
+    <p><b>Date:</b> —</p>
+  </div>
 
-    const receiptDetails = document.getElementById("receiptDetails");
-    const statusTitle = document.getElementById("statusTitle");
-    const statusSubtitle = document.getElementById("statusSubtitle");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const contractLinkEl = document.getElementById("contractLink");
-    const actions = document.getElementById("actions");
-    const shareInfo = document.getElementById("shareInfo");
+  <div class="actions" id="actions">
+    <button class="btn" id="downloadBtn">Download Receipt</button>
+  </div>
+</div>
 
-    const contractLink = `${window.location.origin}/accepted?id=${contractId}`;
+<div id="toast"></div>
 
-    async function loadContract() {
-      if (!contractId) {
-        statusTitle.textContent = "Invalid Link";
-        statusSubtitle.textContent = "Missing contract ID in URL.";
-        return;
-      }
+<script>
+// Particle background
+const canvasEl=document.getElementById("bg");
+const ctx=canvasEl.getContext("2d");
+let particles=[];
+function resize(){canvasEl.width=window.innerWidth;canvasEl.height=window.innerHeight;}
+window.addEventListener("resize",resize);
+resize();
+for(let i=0;i<60;i++){particles.push({x:Math.random()*canvasEl.width,y:Math.random()*canvasEl.height,r:Math.random()*2+1,dx:(Math.random()-0.5)*0.7,dy:(Math.random()-0.5)*0.7});}
+function draw(){ctx.clearRect(0,0,canvasEl.width,canvasEl.height);ctx.fillStyle="rgba(0,168,107,0.25)";particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>canvasEl.width)p.dx*=-1;if(p.y<0||p.y>canvasEl.height)p.dy*=-1;});requestAnimationFrame(draw);}
+draw();
 
-      try {
-        const res = await fetch(`/api/contracts/${contractId}`);
-        const data = await res.json();
+// Receipt logic
+const params=new URLSearchParams(window.location.search);
+const contractId=params.get("id");
+const receiptDetails=document.getElementById("receiptDetails");
+const statusTitle=document.getElementById("statusTitle");
+const statusSubtitle=document.getElementById("statusSubtitle");
+const downloadBtn=document.getElementById("downloadBtn");
+const checkmark=document.getElementById("checkmark");
 
-        if (!data.success) throw new Error("Failed to fetch contract data.");
-        const c = data.data;
 
-        // 🧠 Currency formatting logic
-        let formattedAmount;
-        const amount = Number(c.amount).toLocaleString();
+async function loadContract(){
+  if(!contractId){statusTitle.textContent="Invalid Link";statusSubtitle.textContent="Missing contract ID.";return;}
+  try{
+    const res=await fetch(`/api/contracts/${contractId}`);
+    const data=await res.json();
+    if(!data.success) throw new Error("Failed to fetch contract.");
+    const c=data.data;
+    let amount=Number(c.amount).toLocaleString();
+    let formattedAmount;
+    const crypto=["USDT","BTC","ETH","USDC"];
+    if(c.currency==="USD") formattedAmount=`$${amount}`;
+    else if(c.currency==="GBP") formattedAmount=`£${amount}`;
+    else if(c.currency==="EUR") formattedAmount=`€${amount}`;
+    else if(c.currency==="NGN") formattedAmount=`₦${amount}`;
+    else if(crypto.includes(c.currency)) formattedAmount=`${amount} ${c.currency}`;
+    else formattedAmount=`${amount} ${c.currency||""}`;
 
-        const cryptoCurrencies = ["USDT", "BTC", "ETH", "USDC"];
-        if (c.currency === "USD") formattedAmount = `$${amount}`;
-        else if (c.currency === "GBP") formattedAmount = `£${amount}`;
-        else if (c.currency === "EUR") formattedAmount = `€${amount}`;
-        else if (c.currency === "NGN") formattedAmount = `₦${amount}`;
-        else if (cryptoCurrencies.includes(c.currency)) formattedAmount = `${amount} ${c.currency}`;
-        else formattedAmount = `${amount} ${c.currency || ""}`;
+    receiptDetails.innerHTML=`
+      <p><b>Contract ID:</b> ${c._id}</p>
+      <p><b>Amount:</b> ${formattedAmount}</p>
+      <p><b>Status:</b> ${c.status?c.status.charAt(0).toUpperCase()+c.status.slice(1):'Pending'}</p>
+      <p><b>Date:</b> ${new Date(c.createdAt).toLocaleString()}</p>
+    `;
 
-        // 🧾 Render details
-        receiptDetails.innerHTML = `
-          <p><b>Contract ID:</b> ${c._id}</p>
-          <p><b>Amount:</b> ${formattedAmount}</p>
-          <p><b>Status:</b> ${c.status ? c.status.charAt(0).toUpperCase() + c.status.slice(1) : 'Pending'}</p>
-          <p><b>Date:</b> ${new Date(c.createdAt).toLocaleString()}</p>
-        `;
-
-        contractLinkEl.textContent = contractLink;
-        contractLinkEl.href = contractLink;
-        contractLinkEl.style.display = "none";
-
-        switch (c.status) {
-          case "accepted":
-            statusTitle.textContent = "Contract Accepted";
-            statusSubtitle.textContent = "The escrow contract has been accepted successfully.";
-            break;
-          case "funded":
-            statusTitle.textContent = "Contract Funded";
-            statusSubtitle.textContent = "Funds are now securely held by SafeNode.";
-            break;
-          case "completed":
-            statusTitle.textContent = "Escrow Completed";
-            statusSubtitle.textContent = "This escrow transaction is successfully closed.";
-            break;
-          case "disputed":
-            statusTitle.textContent = "Dispute Raised";
-            statusSubtitle.textContent = "This contract is currently under review.";
-            break;
-          default:
-            statusTitle.textContent = "Pending Contract";
-            statusSubtitle.textContent = "Awaiting further action.";
-        }
-
-      } catch (err) {
-        console.error(err);
-        statusTitle.textContent = "Error Loading Contract";
-        statusSubtitle.textContent = "Please refresh or contact SafeNode support.";
-      }
+    switch(c.status){
+      case "accepted":
+        statusTitle.textContent="Contract Accepted";
+        statusSubtitle.textContent="The escrow contract has been accepted successfully.";
+        checkmark.style.display="block";
+        break;
+      case "funded":
+        statusTitle.textContent="Contract Funded";
+        statusSubtitle.textContent="Funds are now securely held by SafeNode.";
+        break;
+      case "completed":
+        statusTitle.textContent="Escrow Completed";
+        statusSubtitle.textContent="This escrow transaction is successfully closed.";
+        break;
+      case "disputed":
+        statusTitle.textContent="Dispute Raised";
+        statusSubtitle.textContent="This contract is currently under review.";
+        break;
+      default:
+        statusTitle.textContent="Pending Contract";
+        statusSubtitle.textContent="Awaiting further action.";
     }
+  } catch(err){console.error(err);showToast("Error loading contract.","error");statusTitle.textContent="Error";statusSubtitle.textContent="Please refresh or contact support.";}
+}
 
-    // 📄 Download as PNG
-    downloadBtn.addEventListener("click", async () => {
-      actions.style.display = "none";
-      shareInfo.style.display = "none";
+downloadBtn.addEventListener("click",async ()=>{
+  actions.style.display="none";
+  await html2canvas(document.getElementById("receipt"),{scale:3,backgroundColor:"#ffffff",useCORS:true}).then(canvas=>{
+    const link=document.createElement("a");
+    link.download=`SafeNode_Contract_${contractId}.png`;
+    link.href=canvas.toDataURL("image/png");
+    link.click();
+  });
+  actions.style.display="flex";
+});
 
-      await html2canvas(document.getElementById("receipt"), {
-        scale: 3,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-      }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = `SafeNode_Contract_${contractId}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-
-      actions.style.display = "flex";
-      shareInfo.style.display = "block";
-    });
-
-    loadContract();
-  </script>
+loadContract();
+</script>
 </body>
 </html>

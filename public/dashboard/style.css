@@ -135,7 +135,7 @@
     .card h4{margin-top:13px;font-size:.9rem;font-weight:700;margin-bottom:-5px}
     .card h2{color:#00a86b;font-size:1.15rem}
     .new-escrow-btn{display:inline-block;margin-top:18px;background:#00a86b;color:white;
-      border:none;border-radius:8px;padding:10px 12px;cursor:pointer;z-index:1300;
+      border:none;border-radius:8px;padding:10px 10px;cursor:pointer;z-index:1300;
       text-decoration: none;
       align-items:center;gap:8px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,0.08);
 }

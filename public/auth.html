@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
-  <script src="/dashboard/actions.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
   <title>SafeNode — Access Your Account</title>
+<script src="/dashboard/actions.js"></script>
   <style>
     :root {
       --primary: #00a86b;
@@ -15,33 +14,34 @@
       --text-dark: #1a1a1a;
       --text-light: #777;
       --bg-gradient: linear-gradient(135deg, #f6fbff 0%, #f3fff9 100%);
-      --card-bg: #fff;
-      --radius: 18px;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --card-bg: #ffffffcc;
+      --radius: 20px;
+      --shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      --input-border: #ccc;
+      --transition: 0.3s ease;
     }
-    * { box-sizing: border-box; font-family: "Inter", sans-serif; }
+
+    * { box-sizing: border-box; font-family: "Inter", sans-serif; margin:0; padding:0; }
+
     body {
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       padding: 20px;
-      overflow: hidden;
-      position: relative;
       background: var(--bg-gradient);
       background-size: 600% 600%;
       animation: gradientShift 15s ease infinite;
+      position: relative;
+      overflow: hidden;
     }
 
-    /* Background gradient animation */
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    /* Floating particles behind everything */
     canvas#bg {
       position: fixed;
       top: 0;
@@ -55,69 +55,85 @@
     .auth-card {
       position: relative;
       z-index: 2;
-      width: 95%;
+      width: 100%;
       max-width: 400px;
       background: var(--card-bg);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 40px 35px;
+      padding: 50px 35px;
+      backdrop-filter: blur(10px);
       animation: fadeIn 0.6s ease;
+      transition: transform 0.3s ease;
     }
+
+    .auth-card:hover { transform: translateY(-5px); }
+
     .logo {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
       font-weight: 700;
-      font-size: 24px;
+      font-size: 28px;
       color: var(--primary);
     }
-    .logo img { width: 32px; border-radius: 8px; margin-right: 8px; }
-    h2 { text-align: center; color: var(--text-dark); margin-bottom: 25px; }
-    label {
-      font-size: 14px;
-      font-weight: 600;
+
+    .logo img { width:32px; height:32px;border-radius: 10px; margin-right: 10px; }
+
+    h2 {
+      text-align: center;
       color: var(--text-dark);
-      margin-top: 12px;
-      display: block;
+      margin-bottom: 25px;
+      font-size: 24px;
     }
+
+    label {
+      font-size: 13px;
+      color: var(--text-dark);
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
     input {
       width: 100%;
-      padding: 11px;
-      border-radius: 10px;
-      border: 1px solid #e0e0e0;
-      margin-top: 5px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      margin-bottom: 18px;
       font-size: 15px;
       transition: 0.3s;
     }
+
     input:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-light);
       outline: none;
     }
-    input[readonly] {
-      background: #f7f7f7;
-      cursor: not-allowed;
-    }
-    #signupCountry { display: none; }
+
+    input[readonly] { background: #f7f7f7; cursor: not-allowed; }
+
     .password-wrap { position: relative; }
+
     .toggle-password {
       position: absolute;
-      right: 12px;
-      top: 36%;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
       cursor: pointer;
       font-size: 14px;
       color: var(--primary);
       font-weight: 600;
     }
+
     .btn {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 10px;
       background: var(--primary);
       color: #fff;
       border: none;
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 12px;
+      padding: 14px;
       font-weight: 600;
       cursor: pointer;
       font-size: 16px;
@@ -127,8 +143,10 @@
       justify-content: center;
       gap: 8px;
     }
-    .btn:hover { opacity: 0.93; transform: translateY(-1px); }
-    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .btn:hover { opacity: 0.93; transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
     .spinner {
       border: 3px solid #fff;
       border-top: 3px solid rgba(255, 255, 255, 0.3);
@@ -137,38 +155,50 @@
       height: 16px;
       animation: spin 0.8s linear infinite;
     }
-    .switch-text {
+
+    .switch-text, .terms-note {
       text-align: center;
-      margin-top: 15px;
       font-size: 14px;
       color: var(--text-light);
-    }
-    .switch-text span {
-      color: var(--primary);
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .terms-note {
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-light);
       margin-top: 12px;
-      line-height: 1.5;
     }
-    .terms-note a {
-      color: var(--primary);
-      font-weight: 600;
-      text-decoration: none;
-    }
+
+    .switch-text span, .terms-note a { color: var(--primary); cursor: pointer; font-weight: 600; text-decoration: none; }
     .terms-note a:hover { text-decoration: underline; }
-    #verifySection { display: none; text-align: center; }
-    #verifySection p { color: var(--text-dark); font-size: 15px; margin-bottom: 20px; }
+
+    #verifySection { display: none; }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .auth-card { padding: 35px 20px; }
+      h2 { font-size: 20px; }
+      input { padding: 12px; font-size: 14px; }
+      .btn { padding: 12px; font-size: 15px; }
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; pointer-events: auto; }
   </style>
 </head>
+
 <body>
-  <!-- Floating particle background -->
   <canvas id="bg"></canvas>
 
   <div class="auth-card">
@@ -222,161 +252,137 @@
     <div id="verifySection">
       <h2>Verify Your Account</h2>
       <p>We sent a verification link to your email. Click it to verify your account.</p>
-      <p class="switch-text">Already verified? <span id="goLoginFromVerify">Sign up</span></p>
+      <p class="switch-text">Already verified? <span id="goLoginFromVerify">Sign in</span></p>
     </div>
   </div>
 
+  <!-- Toast -->
+  <div id="toast"></div>
+
 <script>
-  const domain = window.location.origin
-  const backendUrl = `${domain}/api/auth`;
+const domain = window.location.origin;
+const backendUrl = `${domain}/api/auth`;
 
-  // Particle background
-  const canvas = document.getElementById("bg");
-  const ctx = canvas.getContext("2d");
-  let particles = [];
+// Particle background
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+let particles = [];
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener("resize", resize);
-  resize();
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener("resize", resize);
+resize();
 
-  for (let i = 0; i < 50; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 2 + 1,
-      dx: (Math.random() - 0.5) * 0.6,
-      dy: (Math.random() - 0.5) * 0.6,
-    });
-  }
+for (let i=0; i<60; i++) {
+  particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*2+1, dx:(Math.random()-0.5)*0.7, dy:(Math.random()-0.5)*0.7 });
+}
 
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgba(0,168,107,0.25)";
-    particles.forEach((p) => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      p.x += p.dx;
-      p.y += p.dy;
-
-      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-
-  // Section toggle
-  const showSection = (id) => {
-    ["signupSection", "loginSection", "verifySection"].forEach(sec => {
-      document.getElementById(sec).style.display = "none";
-    });
-    document.getElementById(id).style.display = "block";
-  };
-  document.getElementById("goLogin").onclick = () => showSection("loginSection");
-  document.getElementById("goSignup").onclick = () => showSection("signupSection");
-  document.getElementById("goLoginFromVerify").onclick = () => showSection("loginSection");
-
-  function togglePassword(btnId, inputId) {
-    const btn = document.getElementById(btnId);
-    const input = document.getElementById(inputId);
-    btn.onclick = () => {
-      const hidden = input.type === "password";
-      input.type = hidden ? "text" : "password";
-      btn.textContent = hidden ? "Hide" : "Show";
-    };
-  }
-  togglePassword("togglePass1", "signupPassword");
-  togglePassword("togglePass2", "loginPassword");
-
-  
-  function setLoading(btn, state, text) {
-    if (state) {
-      btn.disabled = true;
-      btn.innerHTML = `<div class="spinner"></div> Please wait...`;
-    } else {
-      btn.disabled = false;
-      btn.textContent = text;
-    }
-  }
-
-  async function detectCountry() {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      const country = data.country_name || "Unknown";
-      const currency = country.toLowerCase() === "nigeria" ? "NGN" : "USDT";
-      document.getElementById("signupCountry").value = country;
-      document.getElementById("signupCurrency").value = currency;
-    } catch (err) {
-      document.getElementById("signupCountry").value = "Unknown";
-      document.getElementById("signupCurrency").value = "USDT";
-    }
-  }
-  detectCountry();
-
-  document.getElementById("signupForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById("signupBtn");
-    setLoading(btn, true, "Sign Up");
-    try {
-      const res = await fetch(`${backendUrl}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: signupName.value.trim(),
-          email: signupEmail.value.trim(),
-          password: signupPassword.value.trim(),
-          country: signupCountry.value.trim(),
-          currency: signupCurrency.value.trim(),
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        showSection("verifySection");
-      } else {
-        showToast(data.message || "Signup failed.", "error");
-      }
-    } catch {
-      showToast("Connection timeout. Check your server.", "error");
-    } finally {
-      setLoading(btn, false, "Sign Up");
-    }
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "rgba(0,168,107,0.25)";
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fill();
+    p.x += p.dx; p.y += p.dy;
+    if(p.x<0||p.x>canvas.width)p.dx*=-1;
+    if(p.y<0||p.y>canvas.height)p.dy*=-1;
   });
+  requestAnimationFrame(draw);
+}
+draw();
 
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById("loginBtn");
-    setLoading(btn, true, "Sign in");
-    try {
-      const res = await fetch(`${backendUrl}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: loginEmail.value.trim(),
-          password: loginPassword.value.trim(),
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.userId) {
-        localStorage.setItem("ui", data.userId);
+// Sections
+const showSection = id => ["signupSection","loginSection","verifySection"].forEach(s=>document.getElementById(s).style.display=s===id?"block":"none");
+document.getElementById("goLogin").onclick = ()=>showSection("loginSection");
+document.getElementById("goSignup").onclick = ()=>showSection("signupSection");
+document.getElementById("goLoginFromVerify").onclick = ()=>showSection("loginSection");
 
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 2000);
-      } else {
-        showToast(data.message || "Invalid credentials.", "error");
-      }
-    } catch {
-      showToast("Connection timeout. Check your server.", "error");
-    } finally {
-      setLoading(btn, false, "Login");
-    }
-  });
+// Password toggle
+function togglePassword(btnId,inputId) {
+  const btn=document.getElementById(btnId), input=document.getElementById(inputId);
+  btn.onclick=()=>{ const hidden=input.type==="password"; input.type=hidden?"text":"password"; btn.textContent=hidden?"Hide":"Show"; };
+}
+togglePassword("togglePass1","signupPassword");
+togglePassword("togglePass2","loginPassword");
+
+// Loading button
+function setLoading(btn,state,text){
+  if(state){ btn.disabled=true; btn.innerHTML=`<div class="spinner"></div> Please wait...`; } 
+  else { btn.disabled=false; btn.textContent=text; }
+}
+
+// Toast messages
+
+
+
+
+// Detect country and currency
+async function detectCountry(){
+  try{
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
+    const country = data.country_name || "Unknown";
+    const currency = country.toLowerCase()==="nigeria"?"NGN":"USDT";
+    document.getElementById("signupCountry").value = country;
+    document.getElementById("signupCurrency").value = currency;
+  }catch{ 
+    document.getElementById("signupCountry").value="Unknown";
+    document.getElementById("signupCurrency").value="USDT";
+  }
+}
+detectCountry();
+
+// Signup
+document.getElementById("signupForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const btn=document.getElementById("signupBtn");
+  setLoading(btn,true,"Sign Up");
+  try{
+    const res=await fetch(`${backendUrl}/register`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        name: signupName.value.trim(),
+        email: signupEmail.value.trim(),
+        password: signupPassword.value.trim(),
+        country: signupCountry.value.trim(),
+        currency: signupCurrency.value.trim()
+      })
+    });
+    const data = await res.json();
+    if(data.success){
+      showSection("verifySection");
+    } else showToast(data.message || "Signup failed.","error");
+  }catch{
+    showToast("Connection timeout. Check your server.","error");
+  } finally{ setLoading(btn,false,"Sign Up"); }
+});
+
+// Login
+document.getElementById("loginForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const btn=document.getElementById("loginBtn");
+  setLoading(btn,true,"Sign in");
+  try{
+    const res=await fetch(`${backendUrl}/login`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email: loginEmail.value.trim(),
+        password: loginPassword.value.trim()
+      })
+    });
+    const data=await res.json();
+    if(data.success && data.userId){
+      localStorage.setItem("ui",data.userId);
+
+
+      setTimeout(()=>window.location.href="/dashboard",2000);
+    } else showToast(data.message || "Invalid credentials.","error");
+  }catch{
+    showToast("Connection timeout. Check your server.","error");
+  } finally{ setLoading(btn,false,"Sign in"); }
+});
 </script>
 </body>
 </html>
