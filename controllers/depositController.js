@@ -93,7 +93,51 @@ async function getConversionRate(from, to) {
     return fallbackRates[key] || 1;
   }
 }
+exports.paystackWebhook = async (req, res) => {
+  try {
+    const signature = crypto
+      .createHmac("sha512", process.env.PAYSTACK_SECRET_KEY)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
 
+    if (signature !== req.headers["x-paystack-signature"]) {
+      return res.status(401).send("Invalid signature");
+    }
+
+    const event = req.body.event;
+    const data = req.body.data;
+
+    if (event === "charge.success") {
+      const reference = data.reference;
+
+      let transaction = await Transaction.findOne({ reference });
+
+      if (!transaction) {
+        return res.status(200).send("Transaction not found");
+      }
+
+      if (transaction.status === "success") {
+        return res.status(200).send("Already processed");
+      }
+
+      transaction.status = "success";
+      await transaction.save();
+
+      const user = await User.findOne({ email: transaction.userEmail });
+
+      if (user) {
+        user.wallet.balance =
+          (user.wallet.balance || 0) + data.amount / 100;
+        await user.save();
+      }
+    }
+
+    res.status(200).send("OK");
+  } catch (err) {
+    console.error("Webhook error:", err.message);
+    res.status(500).send("Webhook failed");
+  }
+};
 // 🔹 Verify deposit & credit user wallet
 exports.verifyDeposit = async (req, res) => {
   try {
