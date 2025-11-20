@@ -90,15 +90,45 @@ function getEmailTemplate(template, data = {}) {
         `)
       };
 
-    case "refund":
-      return {
-        subject: "Refund Processed",
-        html: baseTemplate(`
-          <h3>Hello ${data.name},</h3>
-          <p>Your refund for <strong>${data.contractTitle}</strong> has been processed.</p>
-          <p>Refund Amount: <strong>₦${data.amount}</strong></p>
-        `)
-      };
+  case "refund":
+  return {
+    subject: "Sispute Resolved: Refund Processed for ${data.contractTitle}",
+    html: baseTemplate(`
+      <h3>Hello ${data.name},</h3>
+      
+      <div style="background:#f0fff8; border:1px solid #cce8da; border-radius:10px; padding:20px; margin-bottom:20px;">
+        <h4 style="color:var(--primary); margin-top:0;">Dispute Resolution Complete</h4>
+        <p style="color:#555;">
+          This email confirms that the dispute regarding the contract <strong>${data.contractTitle}</strong> (ID: ${data.contractId}) has been **successfully resolved**. 
+          We have processed the agreed-upon refund amount.
+        </p>
+      </div>
+
+      <p style="font-size:16px;">
+        The refund amount has been credited back to your original payment method:
+      </p>
+      
+      <table style="width:100%; margin:20px 0; border-collapse:collapse; text-align:left;">
+        <tr>
+          <td style="padding:10px 0; border-bottom:1px solid #eee;">**Contract Title:**</td>
+          <td style="padding:10px 0; border-bottom:1px solid #eee; text-align:right;">${data.contractTitle}</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0; font-size:18px; font-weight:700;">**Refund Amount:**</td>
+          <td style="padding:10px 0; font-size:18px; font-weight:700; color:var(--primary); text-align:right;">₦${data.amount}</td>
+        </tr>
+      </table>
+
+      <p style="margin-top:30px; font-size:14px; color:#777;">
+        **Next Steps:** Please allow **3-5 business days** for the funds to reflect in your bank or wallet statement, as processing times vary by financial institution.
+      </p>
+
+      <p style="font-size:14px; color:#777;">
+        If you have any questions about the dispute resolution, please reply to this email.
+      </p>
+    `)
+  };
+
 
     case "fundReleased":
       return {
@@ -109,16 +139,27 @@ function getEmailTemplate(template, data = {}) {
           <p>Amount: <strong>₦${data.amount}</strong></p>
         `)
       };
-
-    case "dispute":
+    case "Invite":
       return {
-        subject: "Dispute Opened",
+        subject: "Contract invite",
         html: baseTemplate(`
-          <h3>Dispute Created</h3>
-          <p>Contract: <strong>${data.contractTitle}</strong></p>
-          <p>Reason: ${data.reason}</p>
+          <h3>Hello ${data.sellerName},</h3>
+          <p>This buyer <strong>${data.buyerName}</strong> just created a contract with you as the seller.</p>
+          <p>Amount: <strong>₦${data.amount}</strong></p>
+          <a href="${data.dashboardLink}" style="background:#00a86b;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Reset Password</a>
         `)
       };
+      case "dispute":
+      return {
+        subject: `Dispute Opened - ${appName}`,
+        html: baseTemplate(`
+          <h3 style="color:#111827;">Dispute Opened</h3>
+          <p>A dispute has been initiated for the contract: <strong>${data.contractTitle}</strong>.</p>
+          <p>Note: <em>Please do well to contribute to the dispute or else the other party will be credited after 3 days </em></p>
+          <p>Our team will review the case and notify both parties soon.</p>
+        `),
+      };
+    
 
     case "withdrawal":
       return {

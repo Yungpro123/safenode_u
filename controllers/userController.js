@@ -77,3 +77,55 @@ exports.getUserWalletAddress = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+// SEARCH USER BY EMAIL
+exports.searchUserByEmail = async (req, res) => {
+  try {
+    const email = req.query.email;
+
+    if (!email)
+      return res.status(400).json({ success: false, message: "Email is required." });
+
+    const user = await User.findOne({
+      email: { $regex: `^${email}$`, $options: "i" }
+    }).select("email name"); // get the full name
+
+    if (!user)
+      return res.status(200).json({ success: false, user: null });
+
+    // Extract first name
+    const firstName = user.name.split(" ")[0] || user.name;
+
+    res.json({ 
+      success: true, 
+      user: {
+        email: user.email,
+        username: firstName
+      }
+    });
+
+  } catch (err) {
+    console.error("Search Error:", err);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+};
+
+// GET USER BY ID
+exports.getUserById = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const user = await User.findById(id)
+      .select("email username wallet currency");
+
+    if (!user)
+      return res.status(404).json({ success: false, message: "User not found" });
+
+    res.json({ success: true, user });
+
+  } catch (err) {
+    console.error("❌ Error fetching user:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

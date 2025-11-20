@@ -22,6 +22,7 @@ router.get("/dispute",requireAuth,(req, res) => res.sendFile(view("dispute")));
 router.get("/download",requireAuth,(req, res) => res.sendFile(view("download")));
 router.get("/withdraw",requireAuth,(req, res) => res.sendFile(view("withdraw")));
 router.get("/addine",requireAuth,(req, res) => res.sendFile(view("admine")));
+router.get("/lnk",requireAuth,(req, res) => res.sendFile(view("link")));
 router.get("/privacy", (req, res) => res.sendFile(view("privacy")));
 router.get("/contact", (req, res) => res.sendFile(view("contact")));
 router.get("/help", (req, res) => res.sendFile(view("help")));

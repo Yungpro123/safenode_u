@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeNode - Refund After Dispute</title>
+<style>
+/* ===== Safenode Style ===== */
+body {
+  background: #f5f7fa;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.refund-box {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.refund-box h2 {
+  margin-bottom: 20px;
+  color: #0b513f;
+  text-align: center;
+}
+
+label {
+  font-size: 14px;
+  margin-top: 15px;
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  border-radius: 12px;
+  border: 1px solid #d4d4d4;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  background: #00a86b;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  margin-top: 18px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #009a47;
+}
+
+.contract-info {
+  background: #f0f8f5;
+  padding: 12px 15px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.contract-info p {
+  margin: 6px 0;
+  color: #333;
+}
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+
+#toast.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+</style>
+</head>
+<body>
+
+<div class="refund-box">
+  <h2>Refund After Dispute</h2>
+
+  <label for="contractId">Contract ID</label>
+  <input type="text" id="contractId" placeholder="Enter Contract ID">
+
+  <div class="contract-info" id="contractInfo" style="display:none;"></div>
+
+  <label for="refundTo">Refund To</label>
+  <select id="refundTo">
+    <option value="">Select...</option>
+    <option value="buyer">Buyer</option>
+    <option value="seller">Seller</option>
+  </select>
+
+  <button onclick="submitRefund()">Submit Refund</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+function showToast(msg, duration = 3000) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+// Auto fetch contract details
+document.getElementById('contractId').addEventListener('blur', async () => {
+  const contractId = document.getElementById('contractId').value.trim();
+  const infoBox = document.getElementById('contractInfo');
+  infoBox.style.display = 'none';
+  infoBox.innerHTML = '';
+
+  if (!contractId) return;
+
+  try {
+    const res = await fetch(`/api/contracts/${contractId}`);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Contract not found.');
+
+    const c = data.data;
+    infoBox.innerHTML = `
+      <p><strong>Title:</strong> ${c.title}</p>
+      <p><strong>Buyer:</strong> ${c.buyername} (${c.buyer})</p>
+      <p><strong>Seller:</strong> ${c.sellername || 'Not assigned'} (${c.sellerEmail || '—'})</p>
+      <p><strong>Status:</strong> ${c.status}</p>
+      <p><strong>Amount:</strong> ${c.currency === 'USDT' ? c.amount.toFixed(2) + ' USDT' : '₦' + Number(c.amount).toLocaleString()}</p>
+    `;
+    infoBox.style.display = 'block';
+
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || 'Failed to load contract.');
+  }
+});
+
+async function submitRefund() {
+  const contractId = document.getElementById("contractId").value.trim();
+  const refundTo = document.getElementById("refundTo").value;
+
+  if (!contractId) return showToast("Contract ID is required.");
+  if (!refundTo) return showToast("Please choose who to refund.");
+
+  try {
+    const res = await fetch("/api/disputes/refund", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contractId, refundTo })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message);
+      document.getElementById("contractId").value = "";
+      document.getElementById("refundTo").value = "";
+      document.getElementById("contractInfo").style.display = "none";
+    } else {
+      showToast(data.message || "Failed to refund.");
+    }
+
+  } catch (err) {
+    console.error(err);
+    showToast("Server error. Refund not processed.");
+  }
+}
+</script>
+
+</body>
+</html>

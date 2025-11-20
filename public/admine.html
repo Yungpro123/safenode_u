@@ -126,6 +126,7 @@ function displayContracts(list) {
       <div class="row"><span class="label">Buyer:</span> <span class="value">${c.buyername}</span></div>
       <div class="row"><span class="label">Seller:</span> <span class="value">${c.sellername || "-"}</span></div>
       <div class="row"><span class="label">Status:</span> <span class="value">${c.status}</span></div>
+     <div class="row"><span class="label">Status:</span> <span class="value">${c._id}</span></div>
       <div class="row"><span class="label">Created:</span> <span class="value">${new Date(c.createdAt).toLocaleString()}</span></div>
     `;
 

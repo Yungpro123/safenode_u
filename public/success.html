@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" type="image/png">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="/dashboard/actions.js"></script>
+  <script src="/dashboard/actions.js"></script>
 <style>
 :root{
   --primary:#00a86b;
@@ -66,6 +66,7 @@ p.subtitle{ color:var(--text-muted); font-size:14px; margin-bottom:25px;}
   display:flex;
   justify-content:space-between;
   gap:10px;
+  margin-bottom:20px;
 }
 .btn{
   flex:1;
@@ -96,15 +97,67 @@ p.subtitle{ color:var(--text-muted); font-size:14px; margin-bottom:25px;}
 </style>
 </head>
 <body>
+<style>
+    :root{
+      --primary:#00a86b;
+      --primary-light:#d4f7e8;
+      --dark:#111;
+      --gray:#555;
+      --bg-gradient:linear-gradient(135deg,#f6fbff 0%,#f3fff9 100%);
+      --radius:18px;
+      --shadow:0 6px 18px rgba(0,0,0,0.06);
+      --ease-cubic:cubic-bezier(.2,.9,.2,1);
+    }
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .3s ease, visibility .3s ease;
+}
 
+.loader-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.spin {
+  width: 30px;   /* smaller size */
+  height: 30px;
+  border: 4px solid var(--primary-light); /* light part of the circle */
+  border-top-color: var(--primary);      /* active color */
+  border-radius: 50%;
+  animation: spinn 0.8s linear infinite;
+}
+
+@keyframes spinn {
+  to { transform: rotate(360deg); }
+}
+
+
+</style>
+<div id="fullPageLoader" class="loader-overlay">
+  <div style="text-align:center;">
+    <div class="spin"></div>
+
+  </div>
+</div>
 <div class="receipt-container" id="receipt">
   <div class="logo">
     <img src="../logo.png" alt="SafeNode Logo">
     <span>SafeNode</span>
   </div>
 
-  <h2 id="statusTitle">Escrow Funded Successfully</h2>
-  <p class="subtitle" id="statusSubtitle">Funds are securely held by SafeNode until completion.</p>
+  <h2 id="statusTitle">Loading...</h2>
+  <p class="subtitle" id="statusSubtitle"></p>
 
   <div class="details" id="receiptDetails">
     <p><b>Contract ID:</b> —</p>
@@ -124,6 +177,7 @@ p.subtitle{ color:var(--text-muted); font-size:14px; margin-bottom:25px;}
   <div class="actions" id="actions">
     <button class="btn" id="copyBtn">Copy Link</button>
     <button class="btn" id="shareBtn">Share</button>
+    <button class="btn" id="downloadBtn" style="display:none;">Download Receipt</button>
   </div>
 
   <p class="footer">Powered by SafeNode Escrow Services</p>
@@ -132,32 +186,40 @@ p.subtitle{ color:var(--text-muted); font-size:14px; margin-bottom:25px;}
 <div id="toast"></div>
 
 <script>
-const params=new URLSearchParams(window.location.search);
-const contractId=params.get("id");
-const receiptDetails=document.getElementById("receiptDetails");
-const statusTitle=document.getElementById("statusTitle");
-const statusSubtitle=document.getElementById("statusSubtitle");
-const copyBtn=document.getElementById("copyBtn");
-const shareBtn=document.getElementById("shareBtn");
-const sellerLinkEl=document.getElementById("sellerLink");
-const actions=document.getElementById("actions");
-const shareInfo=document.getElementById("shareInfo");
-const toast=document.getElementById("toast");
-const domain=window.location.origin;
-const sellerLink=`${domain}/accept?contract=${contractId}`;
+const params = new URLSearchParams(window.location.search);
+const contractId = params.get("id");
+const receiptDetails = document.getElementById("receiptDetails");
+const statusTitle = document.getElementById("statusTitle");
+const statusSubtitle = document.getElementById("statusSubtitle");
+const copyBtn = document.getElementById("copyBtn");
+const shareBtn = document.getElementById("shareBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+const sellerLinkEl = document.getElementById("sellerLink");
+const actions = document.getElementById("actions");
+const shareInfo = document.getElementById("shareInfo");
+const toast = document.getElementById("toast");
+const domain = window.location.origin;
+const sellerLink = `${domain}/accept?contract=${contractId}`;
 
 
-
+const loaderOverlay = document.getElementById("fullPageLoader");
 async function loadContract(){
-  if(!contractId){statusTitle.textContent="Invalid Link"; statusSubtitle.textContent="Missing contract ID in URL."; return;}
-  try{
-    const res=await fetch(`/api/contracts/${contractId}`);
-    const data=await res.json();
-    if(!data.success) throw new Error("Failed to fetch contract data.");
-    const c=data.data;
-    const amountText=c.currency==="USDT"?`${c.amount.toFixed(2)} ${c.currency}`:`₦${Number(c.amount).toLocaleString()}`;
+  if(!contractId){
+    statusTitle.textContent = "Invalid Link";
+    statusSubtitle.textContent = "Missing contract ID in URL.";
+    return;
+  }
 
-    receiptDetails.innerHTML=`
+  try{
+    
+    loaderOverlay.classList.add("active"); // show loader
+    const res = await fetch(`/api/contracts/${contractId}`);
+    const data = await res.json();
+    if(!data.success) throw new Error("Failed to fetch contract data.");
+    const c = data.data;
+    const amountText = c.currency==="USDT"?`${c.amount.toFixed(2)} ${c.currency}`:`₦${Number(c.amount).toLocaleString()}`;
+
+    receiptDetails.innerHTML = `
       <p><b>Contract ID:</b> ${c._id}</p>
       <p><b>Title:</b> ${c.title||"—"}</p>
       <p><b>Description:</b> ${c.description||"—"}</p>
@@ -167,27 +229,109 @@ async function loadContract(){
       <p><b>Date:</b> ${new Date(c.createdAt).toLocaleString()}</p>
     `;
 
-    sellerLinkEl.textContent=sellerLink;
-    sellerLinkEl.href=sellerLink;
-
-    if(c.status==="funded"){statusTitle.textContent="Escrow Funded Successfully"; statusSubtitle.textContent="Funds are securely held by SafeNode until completion.";}
-    else if(c.status==="pending"){statusTitle.textContent="Payment Pending"; statusSubtitle.textContent="Your payment is being confirmed.";}
-    else if(c.status==="failed"){statusTitle.textContent="Payment Failed"; statusSubtitle.textContent="There was an issue processing your payment.";}
-  }catch(err){console.error(err); statusTitle.textContent="Error Loading Contract"; statusSubtitle.textContent="Please refresh or contact support.";}
+    // Status messages
+    switch(c.status){
+      case "funded":
+        statusTitle.textContent = "Contract Successfully Created";
+        statusSubtitle.textContent = "Funds are safely held until contract completion.";
+        shareInfo.style.display = "block";
+        actions.style.display = "flex";
+        copyBtn.style.display = "inline-block";
+        shareBtn.style.display = "inline-block";
+        downloadBtn.style.display = "none";
+        sellerLinkEl.textContent = sellerLink;
+        sellerLinkEl.href = sellerLink;
+        break;
+      case "accepted":
+        statusTitle.textContent = "Contract Successfully Created";
+        statusSubtitle.textContent = "";
+        shareInfo.style.display = "none";
+        copyBtn.style.display = "none";
+        shareBtn.style.display = "none";
+        downloadBtn.style.display = "inline-block";
+        break;
+      case "pending":
+        statusTitle.textContent = "Payment Pending";
+        statusSubtitle.textContent = "Your payment is being confirmed.";
+        shareInfo.style.display = "block";
+        actions.style.display = "flex";
+        copyBtn.style.display = "inline-block";
+        shareBtn.style.display = "inline-block";
+        downloadBtn.style.display = "none";
+        sellerLinkEl.textContent = sellerLink;
+        sellerLinkEl.href = sellerLink;
+        break;
+      case "failed":
+        statusTitle.textContent = "Payment Failed";
+        statusSubtitle.textContent = "There was an issue processing your payment.";
+        shareInfo.style.display = "none";
+        actions.style.display = "none";
+        downloadBtn.style.display = "none";
+        break;
+      default:
+        statusTitle.textContent = "Status Unknown";
+        statusSubtitle.textContent = "";
+        shareInfo.style.display = "none";
+        actions.style.display = "none";
+        downloadBtn.style.display = "none";
+    }
+loaderOverlay.classList.remove("active"); // show loader
+  }catch(err){
+    console.error(err);
+    statusTitle.textContent = "Error Loading Contract";
+    statusSubtitle.textContent = "Please refresh or contact support.";
+    shareInfo.style.display = "none";
+    actions.style.display = "none";
+    downloadBtn.style.display = "none";
+  }
 }
 
-copyBtn.addEventListener("click",()=>{navigator.clipboard.writeText(sellerLink); showToast("Link Copied!");});
-shareBtn.addEventListener("click",async()=>{
-  actions.style.display="none"; shareInfo.style.display="none";
-  const canvas=await html2canvas(document.getElementById("receipt"),{scale:3, backgroundColor:"#ffffff", useCORS:true});
-  canvas.toBlob(async(blob)=>{
-    const file=new File([blob],`SafeNode_Receipt_${contractId}.png`,{type:"image/png"});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{await navigator.share({title:"SafeNode Escrow Receipt", text:`Join this escrow using the link:\n${sellerLink}`, files:[file]});}
-      catch(err){console.error(err);}
-    }else{navigator.clipboard.writeText(sellerLink); showToast("Link copied! Share the receipt image manually.");}
+// Copy link
+copyBtn.addEventListener("click", ()=>{navigator.clipboard.writeText(sellerLink); showToast("Link Copied!");});
+
+// Share receipt
+shareBtn.addEventListener("click", async () => {
+  try {
+    actions.style.display = "none"; 
+    shareInfo.style.display = "none";
+
+    const canvas = await html2canvas(document.getElementById("receipt"), {scale:3, backgroundColor:"#ffffff", useCORS:true});
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    const file = new File([blob], `SafeNode_Receipt_${contractId}.png`, {type:"image/png"});
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: "SafeNode Escrow Receipt",
+        text: `Join this escrow using the link:\n${sellerLink}`,
+        files: [file],
+      });
+    } else {
+      // fallback: copy the link and alert user
+      await navigator.clipboard.writeText(sellerLink);
+      if (!navigator.share) {
+  showToast("Sharing not supported on this browser. Copy the link instead.");
+}
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Sharing failed. Try copying the link manually.", "error");
+  } finally {
+    actions.style.display = "flex"; 
+    shareInfo.style.display = "block";
+  }
+});
+// Download receipt for accepted contracts
+downloadBtn.addEventListener("click", async ()=>{
+  actions.style.display="none";
+  shareInfo.style.display="none";
+  const canvas = await html2canvas(document.getElementById("receipt"), {scale:3, backgroundColor:"#ffffff", useCORS:true});
+  canvas.toBlob((blob)=>{
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `SafeNode_Receipt_${contractId}.png`;
+    link.click();
   });
-  actions.style.display="flex"; shareInfo.style.display="block";
+  actions.style.display="flex";
 });
 
 loadContract();

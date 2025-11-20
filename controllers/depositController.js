@@ -83,11 +83,12 @@ async function getConversionRate(from, to) {
 
     // Fallback static rates
     const fallbackRates = {
-      "NGN_USDT": 1 / 1500,
-      "USDT_NGN": 1500,
-      "NGN_USD": 1 / 1600,
-      "USD_NGN": 1600,
-    };
+  "NGN_USDT": 1500, // 1500 NGN = 1 USDT
+  "USDT_NGN": 1 / 1500,
+  "NGN_USD": 1600,  // 1600 NGN = 1 USD
+  "USD_NGN": 1 / 1600,
+};
+
 
     const key = `${from}_${to}`;
     return fallbackRates[key] || 1;
@@ -179,16 +180,18 @@ exports.verifyDeposit = async (req, res) => {
     if (!user.wallet.currency) user.wallet.currency = user.currency || "NGN";
 
     // 👇 Determine target currency
-    const walletCurrency = user.wallet.currency.toUpperCase();
-    const targetCurrency = walletCurrency === "USDT" ? "USD" : walletCurrency;
+    const walletCurrency = user.wallet.currency.toUpperCase(); // e.g., NGN, USDT, USD
+let creditAmount = depositAmount; // default NGN
 
-    // 🔁 Convert deposit if needed
-    let creditAmount = depositAmount;
-    if (targetCurrency !== "NGN") {
-      const rate = await getConversionRate("NGN", targetCurrency);
-      creditAmount = depositAmount / rate;
-      console.log(`💱 Converted ₦${depositAmount} → ${creditAmount.toFixed(2)} ${targetCurrency}`);
-    }
+if (walletCurrency !== "NGN") {
+  // Map USDT to USDT (or USD if needed)
+  const target = walletCurrency === "USDT" ? "USDT" : walletCurrency;
+  const rate = await getConversionRate("NGN", target);
+
+  // Convert correctly: NGN / rate → amount in target currency
+  creditAmount = depositAmount / rate; 
+  console.log(`💱 Converted ₦${depositAmount} → ${creditAmount.toFixed(2)} ${target}`);
+}
 
     // ✅ Credit user wallet
     user.wallet.balance += creditAmount;

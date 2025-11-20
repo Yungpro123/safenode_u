@@ -208,16 +208,69 @@
     @keyframes fadeIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
     @media(max-width:480px){.card{padding:35px 20px;} h2{font-size:20px;} .desc{font-size:13.5px;} .btn{padding:12px; font-size:15px;}}
   </style>
+  
+<style>
+    :root{
+      --primary:#00a86b;
+      --primary-light:#d4f7e8;
+      --dark:#111;
+      --gray:#555;
+      --bg-gradient:linear-gradient(135deg,#f6fbff 0%,#f3fff9 100%);
+      --radius:18px;
+      --shadow:0 6px 18px rgba(0,0,0,0.06);
+      --ease-cubic:cubic-bezier(.2,.9,.2,1);
+    }
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .3s ease, visibility .3s ease;
+}
+
+.loader-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.spin {
+  width: 30px;   /* smaller size */
+  height: 30px;
+  border: 4px solid var(--primary-light); /* light part of the circle */
+  border-top-color: var(--primary);      /* active color */
+  border-radius: 50%;
+  animation: spinn 0.8s linear infinite;
+}
+
+@keyframes spinn {
+  to { transform: rotate(360deg); }
+}
+
+
+</style>
 </head>
 <body>
   <canvas id="bg"></canvas>
+<div id="fullPageLoader" class="loader-overlay">
+  <div style="text-align:center;">
+    <div class="spin"></div>
 
+  </div>
+</div>
   <div class="card">
     <div class="logo">
       <img src="../logo.png" alt="SafeNode Logo" /> SafeNode
     </div>
 
-    <h2>Accept Secure Contract</h2>
+    <h2>You have been invited to join this Escrow contract . </h2>
     <div class="info" id="contractInfo">
       <p>Loading contract details...</p>
     </div>
@@ -279,12 +332,14 @@ async function getUserEmail(){
     else throw new Error();
   }catch{ showMessage("Please log in again.","error"); setTimeout(()=>window.location.href="/auth",1200);}
 }
+const loaderOverlay = document.getElementById("fullPageLoader");
 
 async function loadContract(){
   try{
-    const res = await fetch(`/api/contracts/${contractId}`);
+        const res = await fetch(`/api/contracts/${contractId}`);
     const data = await res.json();
     if(!data.success || !data.data){window.location.href="/404";return;}
+    loaderOverlay.classList.remove("active"); // show loader
     const c = data.data;
     buyerEmail = c.buyer;
 
@@ -329,6 +384,8 @@ confirmYes.addEventListener("click",async ()=>{
 });
 
 document.addEventListener("DOMContentLoaded",async ()=>{
+  loaderOverlay.classList.add("active"); // show loader
+
   acceptBtn.disabled=true;
   await getUserEmail();
   await loadContract();

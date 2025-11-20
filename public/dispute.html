@@ -404,43 +404,41 @@
     }
   }
 
-  async function loadDispute(){
-    try {
-      const res = await fetch(`${API_BASE}/${contractId}`);
-      const data = await res.json();
-      if(!data.success) return;
+  let lastNotificationCount = 0; // tracks what messages have triggered notifications
 
-      disputeId = data.dispute._id;
-      document.getElementById('contractTitle').textContent = 'Contract Title: ' + (data.dispute.contractTitle || 'Dispute');
+async function loadDispute() {
+  try {
+    const res = await fetch(`${API_BASE}/${contractId}`);
+    const data = await res.json();
+    if (!data.success) return;
 
-      const messages = data.dispute.messages || [];
-      const newCount = messages.length;
+    disputeId = data.dispute._id;
+    const messages = data.dispute.messages || [];
+    const totalMessages = messages.length;
 
-      if (newCount > lastMessageCount) {
-        const newly = messages.slice(lastMessageCount);
-        if (newly.length) {
-          const latest = newly[newly.length - 1];
-          const isMine = (latest.senderId && latest.senderId === userId) ||
-                        (latest.senderRole && latest.senderRole === senderRole && !latest.senderId);
-          if (!isMine) showNotificationForMessage(latest);
-        }
-      }
-
-      const cs = checksumMessages(messages);
-      if(cs !== lastChecksum){
-        lastChecksum = cs;
-        renderMessages(messages);
-      }
-
-      lastMessageCount = messages.length;
-      updateBrandStatus('Online');
-
-    } catch(err) {
-      console.error('loadDispute', err);
-      updateBrandStatus('Offline');
+    // only notify for messages not counted yet
+    const newCount = totalMessages - lastNotificationCount;
+    if (newCount > 0) {
+      const newMessages = messages.slice(-newCount);
+      newMessages.forEach(msg => {
+        const isMine = (msg.senderId && msg.senderId === userId) ||
+                       (msg.senderRole && senderRole && msg.senderRole === senderRole && !msg.senderId);
+        if (!isMine) showNotificationForMessage(msg);
+      });
+      lastNotificationCount = totalMessages; // update local count
     }
-  }
 
+    // render messages if anything changed
+    const cs = checksumMessages(messages);
+    if (cs !== lastChecksum) {
+      lastChecksum = cs;
+      renderMessages(messages);
+    }
+
+  } catch (err) {
+    console.error('loadDispute', err);
+  }
+}
   function startPolling(){ stopPolling(); pollTimer = setInterval(loadDispute, POLL_INTERVAL); }
   function stopPolling(){ if(pollTimer) clearInterval(pollTimer); pollTimer = null; }
 

@@ -136,7 +136,7 @@ exports.verifyEmail = async (req, res) => {
     const { token } = req.params;
     const user = await User.findOne({ verificationToken: token });
 
-    if (!user) return res.status(400).send("Invalid or expired verification link.");
+    if (!user) return res.status(400).send("Pls check kf your Account has been verified , or this is an expired link");
 
     user.verified = true;
     user.verificationToken = null;

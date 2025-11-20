@@ -274,4 +274,5 @@
   loadDisputesFromServer();
 
   // optional: refresh every 30s (uncomment if you want auto-refresh)
+  setInterval(loadDisputesFromServer, 30000);
 })();

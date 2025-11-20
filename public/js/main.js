@@ -1,8 +1,8 @@
 // main.js — SafeNode Dashboard (currency detection + buyer/seller logic + all escrows)
 document.addEventListener("DOMContentLoaded", () => {
   const userId = localStorage.getItem("ui");
-  const API_BASE = "/api/dashboard";
-const API_BASEE = "/";
+  const API_BASE = "http://localhost:5000/api/dashboard";
+
   if (!userId) {
     console.log("...")
     return;
@@ -134,41 +134,32 @@ let sellernamme = null;
       if (!res.ok) throw new Error(data.message || "Failed to release funds");
       await loadDashboard();
     } catch (err) {
-      showToast(err.message,"error");
+      alert(err.message);
     }
   }
 
   // 🧾 API: Request Funds (seller)
-async function requestFunds(contractId) {
-  try {
-    const res = await fetch(`/api/contracts/request/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: contractId, 
-        ui: userId// seller’s email (so backend knows who’s requesting)
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) throw new Error(data.message || "Failed to request funds");
-
-    showToast(data.message || "Request sent to buyer!", "success");
-  } catch (err) {
-    showToast(err.message, "error");
+  async function requestFunds(contractId) {
+    try {
+      const res = await fetch(`${API_BASE}/request-funds`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", userid: userId },
+        body: JSON.stringify({ contractId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to request funds");
+      alert(data.message || "Request sent to buyer!");
+    } catch (err) {
+      alert(err.message);
+    }
   }
-}
 
   // 🧾 API: Dispute
   async function initiateDispute(contractId, title, reason) {
     try {
-      showToast("Dispute successfully initiated")
       window.location.href = `/dispute?contract=${encodeURIComponent(contractId)}`; // ✅ redirect with contract ID
     } catch (err) {
-      showToast(err.message,"sucess");
+      alert(err.message);
     }
   }
 
@@ -248,7 +239,7 @@ async function requestFunds(contractId) {
       });
     if (isSeller)
       document.getElementById("requestFundsBtn")?.addEventListener("click", () => {
-    requestFunds(data.id);
+        if (confirm(`Request funds for "${data.title}"?`)) requestFunds(data.id);
       });
 
     document.getElementById("initiateDisputeBtn")?.addEventListener("click", async () => {
@@ -301,7 +292,7 @@ walletBalanceE.textContent = displayBalance;
         completedCount,
       });
 
-      const sortOrder = ["accepted","funded", "completed", "pending"];
+      const sortOrder = ["accepted","funded", "completed", "resolved"];
       contracts.sort((a, b) => sortOrder.indexOf(a.status?.toLowerCase()) - sortOrder.indexOf(b.status?.toLowerCase()));
 
 if (escrowListEl) {
@@ -318,7 +309,7 @@ if (escrowListEl) {
     ${
       contracts.length > 4
         ? `<div style="margin-top:20px;text-align:center;">
-             <button id="viewAllEscrowBtn" class="view-escrow-btn">View All Contracts</button>
+             <button id="viewAllEscrowBtn" class="view-escrow-btn">View All Escrows</button>
            </div>`
         : ""
     }
@@ -436,6 +427,7 @@ function openEscrowPanel(data) {
       actionBtnHtml = `
         <button class="btn-primary" id="releaseFundsBtn">Release Funds</button>
         <button class="btn-secondary" id="initiateDisputeBtn">Initiate Dispute</button>
+
       `;
     } else if (isSeller) {
       actionBtnHtml = `
@@ -450,7 +442,11 @@ function openEscrowPanel(data) {
     `;
   } else if (status === "completed") {
     actionBtnHtml = `<button class="btn-primary" id="downloadReceiptBtn">Download Receipt</button>`;
-  } else if (status === "disputed") {
+  }
+  else if (status === "resolved") {
+    actionBtnHtml = `<button class="btn-primary" id="downloadReceiptBtn">Download Receipt</button>`;
+  } 
+  else if (status === "disputed") {
     actionBtnHtml = `<button class="btn-primary" id="initiateDisputeBtn">View Dispute</button>`;
   }
 
@@ -511,7 +507,7 @@ function openEscrowPanel(data) {
 
   if (document.getElementById("requestFundsBtn")) {
     document.getElementById("requestFundsBtn").addEventListener("click", () => {
-   requestFunds(data.id);
+      if (confirm(`Request funds for "${data.title}"?`)) requestFunds(data.id);
     });
   }
 
@@ -525,31 +521,15 @@ function openEscrowPanel(data) {
   if (document.getElementById("copyLinkBtn")) {
     document.getElementById("copyLinkBtn").addEventListener("click", () => {
       navigator.clipboard.writeText(window.location.origin + `/accept.html?contract=${data.id}`);
-      showToast("Link copied to clipboard!","success");
+      alert("Link copied to clipboard!");
     });
   }
-if (document.getElementById("cancelOrderBtn")) {
-  document.getElementById("cancelOrderBtn").addEventListener("click", async () => {
-    try {
-      const res = await fetch(`/api/contracts/cancel/${data.id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json", userid: userId },
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "Failed to cancel contract");
 
-      showToast(result.message || "Contract cancelled successfully!", "success");
-      
-
-      // Close the detail panel
-      document.getElementById("panelOverlay").classList.remove("visible");
-      document.getElementById("detailPanel").classList.remove("open");
-    } catch (err) {
-      showToast(err.message, "error");
-    }
-  });
-}
-  
+  if (document.getElementById("cancelOrderBtn")) {
+    document.getElementById("cancelOrderBtn").addEventListener("click", () => {
+      alert("Order cancelled successfully! (Demo)");
+    });
+  }
 
   if (document.getElementById("downloadReceiptBtn")) {
     document.getElementById("downloadReceiptBtn").addEventListener("click", () => {

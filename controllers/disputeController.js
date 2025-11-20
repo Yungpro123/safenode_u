@@ -5,7 +5,7 @@ const ImageKit = require("imagekit");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const { sendTemplateEmail } = require("../utils/mailer");
-
+const Transaction = require("../models/Transaction");
 dotenv.config();
 
 // ImageKit config
@@ -107,12 +107,21 @@ exports.getOrCreateDispute = async (req, res) => {
       await sendTemplateEmail("dispute", "ketaltd19@gmail.com", { contractTitle: contract.title });
       await sendTemplateEmail("dispute", contract.buyer, { contractTitle: contract.title });
 
-      await dispute.save();
+      
 
       contract.status = "disputed";
       await contract.save();
     }
-
+    if(dispute){
+      if(dispute.messages.length === dispute.notificationCount){
+        console.log("the sane",dispute.notificationCount)
+      }else{
+       dispute.notificationCount += 1 
+       console.log("added")
+      }
+    }
+    
+    await dispute.save();
     res.json({ success: true, dispute });
 
   } catch (err) {
@@ -208,5 +217,84 @@ exports.sendMessage = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+exports.refundUserAfterDispute = async (req, res) => {
+  try {
+    const { contractId, refundTo } = req.body;
+    if (!contractId || !refundTo) {
+      return res.status(400).json({
+        success: false,
+        message: "contractId and refundTo (buyer|seller) are required.",
+      });
+    }
+
+    if (!["buyer", "seller"].includes(refundTo)) {
+      return res.status(400).json({
+        success: false,
+        message: "refundTo must be either 'buyer' or 'seller'.",
+      });
+    }
+
+    // Get contract
+    const contract = await Contract.findById(contractId);
+    if (!contract) {
+      return res.status(404).json({ success: false, message: "Contract not found." });
+    }
+
+    if (contract.status !== "disputed") {
+      return res.status(400).json({
+        success: false,
+        message: "Contract is not in dispute.",
+      });
+    }
+
+    const amount = contract.amount;
+
+    // Determine refund user
+    let refundEmail = refundTo === "buyer" ? contract.buyer : contract.sellerEmail;
+    const refundUser = await User.findOne({ email: refundEmail });
+
+    if (!refundUser) {
+      return res.status(404).json({
+        success: false,
+        message: `${refundTo} not found in users.`,
+      });
+    }
+
+    // Refund wallet
+    refundUser.wallet.balance += amount;
+    await refundUser.save();
+   await sendTemplateEmail("refund", refundUser.email, { contractTitle: contract.title,amount: contract.amount,name:refundUser.name });
+   
+    // Create transaction record
+    await Transaction.create({
+      userId: refundUser._id,
+      userEmail: refundUser.email,
+      type: "refund",
+      amount,
+      currency: contract.currency || "NGN",
+      reference: `REFUND-${Date.now()}`,
+      note: `Dispute refund issued to ${refundTo}. Contract ID: ${contract._id}`,
+    });
+
+    // Update contract
+    contract.status = "resolved";
+    contract.disputeResolved = true;
+    contract.fault = refundTo === "buyer" ? "seller" : "buyer"; // opposite is at fault
+    contract.refundedTo = refundEmail;
+    contract.refundedAt = new Date();
+    await contract.save();
+
+    res.json({
+      success: true,
+      message: `Refund successfully sent to the ${refundTo}.`,
+    });
+
+  } catch (err) {
+    console.error("Refund error:", err);
+    res.status(500).json({ success: false, message: "Server error processing refund." });
   }
 };

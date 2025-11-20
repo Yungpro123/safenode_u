@@ -13,6 +13,7 @@ const disputeSchema = new mongoose.Schema({
   buyerName: { type: String, required: true },
   sellerName: { type: String, required: true },
   messages: [messageSchema],
+  notificationCount: { type: Number, default: 0 }   
 }, { timestamps: true });
 
 module.exports = mongoose.model("Dispute", disputeSchema);

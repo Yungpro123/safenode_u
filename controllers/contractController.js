@@ -46,12 +46,12 @@ exports.getUserBalance = async (req, res) => {
 // 🔹 Create new escrow contract and handle wallet funding
 exports.createContract = async (req, res) => {
   try {
-    const { title, description, amount, buyerEmail, paymentMethod, chargePayer } = req.body;
+    const { title, description, amount, buyerEmail, paymentMethod, chargePayer  } = req.body;
 
     if (!title || !description || !amount || !buyerEmail || !paymentMethod) {
       return res.status(400).json({ success: false, message: "Missing required fields." });
     }
-
+    
     // 🔹 Find buyer
     let buyer = await User.findOne({ email: buyerEmail });
     if (!buyer) {
@@ -82,13 +82,15 @@ exports.createContract = async (req, res) => {
     else if (chargePayer === "split") totalAmount += fee / 2;
 
     const firstName = buyer.name.split(" ")[0] || "User";
-
+console.log(req.body.sellerEmail)
     // 🔹 Initialize contract
     const contract = new Contract({
       title,
       description,
       amount,
       currency,
+      sellername:req.body.sellerName,
+      sellerEmail:req.body.sellerEmail,
       buyer: buyer.email,
       buyername: firstName,
       chargePayer: chargePayer || "buyer",
@@ -97,6 +99,23 @@ exports.createContract = async (req, res) => {
       createdAt: new Date(),
     });
 
+   if(req.body.sellerEmail){
+     contract.status = "accepted"
+     await sendTemplateEmail("Invite", req.body.sellerEmail, {
+     buyerName: req.body.buyername,
+  sellerName: req.body.sellername,
+  contractTitle: req.body.title,
+  amount: req.body.amount,
+  dashboardLink: `${FRONTEND_BASE_URL}/dashboard/`
+});  // Add seller to buyer's recent sellers (if sellerEmail was provided)
+   await buyer.addRecentSeller({
+    name: req.body.sellerName || req.body.sellerEmail.split("@")[0],
+    email: req.body.sellerEmail
+  });
+   }
+   else{
+     contract.status = "funded";
+   }
     // 🔹 If payment method = wallet
     if (paymentMethod.toLowerCase() === "wallet") {
       const balance = buyer.wallet.balance;
@@ -121,7 +140,7 @@ exports.createContract = async (req, res) => {
       buyer.wallet.balance -= totalAmount;
       await buyer.save();
 
-      contract.status = "funded";
+      
       await contract.save();
 
       console.log(`✅ Wallet funded contract: ${buyer.email} - ${currency}${totalAmount}`);

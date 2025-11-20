@@ -170,6 +170,10 @@ async function loadContract(){
         statusTitle.textContent="Dispute Raised";
         statusSubtitle.textContent="This contract is currently under review.";
         break;
+        case "resolved":
+        statusTitle.textContent="Dispute resolved";
+        statusSubtitle.textContent="This contract is currently under review.";
+        break;
       default:
         statusTitle.textContent="Pending Contract";
         statusSubtitle.textContent="Awaiting further action.";

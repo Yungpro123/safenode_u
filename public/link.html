@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SafeNode — Secure Payment</title>
+  <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">  
+  <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
+  <link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
+  <script src="/dashboard/actions.js"></script>
+  <style>
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; }  
+    body { margin:0; display:flex; justify-content:center; min-height:100vh; padding-top: env(safe-area-inset-top);background: linear-gradient(160deg,#e8f9f0 0%,#f0f5ff 100%); }  
+.page-container { width:100%; max-width:480px; overflow:hidden; border-radius:24px; padding:15px}  
+
+    form {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 18px;
+      padding: 32px 28px;
+
+    }
+    :root {
+      --primary: #00a86b;
+      --primary-light: #d4f7e8;
+      --text-dark: #1a1a1a;
+      --text-light: #777;
+      --bg-gradient: linear-gradient(135deg, #f6fbff 0%, #f3fff9 100%);
+      --card-bg: #ffffffcc;
+      --radius: 20px;
+      --shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      --input-border: #ccc;
+      --transition: 0.3s ease;
+    }
+    .logo { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; }
+    .logo img { width:32px; height:32px; border-radius:7px; transition: transform .3s ease; }
+    .logo img:hover { transform: scale(1.15) rotate(8deg); }
+    .logo span { font-size:22px; font-weight:700; color:#00a86b; }
+
+    h2 { color:#0b513f; text-align:center; font-size:20px; font-weight:600; margin-bottom:20px; }
+
+    label {
+      font-size: 13px;
+      color: var(--text-dark);
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      margin-bottom: 18px;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      outline: none;
+    }
+
+    
+
+    .btn { width:100%; margin-top:22px; padding:14px; border-radius:12px; border:none; background:#00a86b; color:#fff; font-weight:700; cursor:pointer; font-size:16px; transition:all .3s ease; }
+    .btn:hover { background:#00945f; }
+
+    .loader-overlay {
+      position:absolute; inset:0; background:rgba(255,255,255,.85);
+      display:flex; align-items:center; justify-content:center; flex-direction:column;
+      visibility:hidden; opacity:0; transition:opacity .3s ease, visibility .3s ease;
+    }
+    .loader-overlay.active { visibility:visible; opacity:1; }
+    .spinner { border:4px solid #e0e0e0; border-top:4px solid #00bb55; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    #amountGroup, #chargeSection, #feeSummary { display:none; }
+    #feeSummary { background:#f7fef9; border:1px solid #dff5e5; border-radius:10px; padding:12px 14px; margin-top:14px; font-size:14px; color:#055e38; line-height:1.5; }
+
+    /* --- Dropdown Styles --- */
+    .dropdown { position: relative; user-select: none; margin-top: 6px; }
+    .dropdown-selected { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; font-size: 15px; cursor: pointer; transition: all 0.25s ease; }
+    .dropdown-selected:hover { border-color: #00bb55; box-shadow: 0 0 10px rgba(0,187,85,0.2); }
+    .dropdown-options { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; max-height: 0; opacity: 0; pointer-events: none; transition: all 0.25s ease; z-index: 10; }
+    .dropdown.active .dropdown-options { max-height: 180px; opacity: 1; pointer-events: auto; }
+    .dropdown-options div { padding: 12px 14px; cursor: pointer; font-size: 14px; transition: background 0.2s ease; }
+    .dropdown-options div:hover { background: #e8f9f0; }
+
+    @media (max-width: 640px) {
+      form { padding: 24px 16px; }
+    }.back-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #00a86b;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 6px;
+    width: 40px;
+}
+
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <div style="display:flex; align-items:center; padding:12px;">
+  <button onclick="history.back()" 
+          class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+  </button>
+</div>
+    <form id="contractForm">
+      <h2>Create a Contract Invite link</h2>
+      <p style="height:10px"></p>
+      <label>Contract Title</label>
+      <input id="title" placeholder="Contract title" required />
+      <label>Description</label>
+      <input id="description" placeholder="Description" required />
+
+      <!-- Payment Dropdown -->
+      <label>Payment Method</label>
+      <div class="dropdown" id="paymentDropdown">
+        <div class="dropdown-selected">Select payment method</div>
+        <div class="dropdown-options" id="paymentOptions">
+          <div data-value="wallet" style="font-weight:500">Wallet — <span id="walletInlineBalance" style="color:#00a86b;font-weight:600">₦0.00</span></div>
+        </div>
+      </div>
+
+      <div id="amountGroup">
+        <label>Amount (<span id="currencyLabel">₦</span>)</label>
+        <input id="amount" type="number" placeholder="Enter amount" required />
+      </div>
+
+      <div id="chargeSection">
+        <label>Who Pays the SafeNode Fee?</label>
+        <div class="dropdown" id="chargeDropdown">
+          <div class="dropdown-selected">Select option</div>
+          <div class="dropdown-options">
+            <div data-value="buyer">Buyer Pays All (6%)</div>
+            <div data-value="seller">Seller Pays All (6%)</div>
+            <div data-value="split">Split 50 / 50</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="feeSummary"></div>
+      <button class="btn" type="submit" id="payBtn">Continue</button>
+    </form>
+  </div>
+
+  <div class="loader-overlay" id="loader">
+    <div class="spinner"></div>
+    <div class="loading-text">Processing Payment...</div>
+  </div>
+
+  <script>
+    const form = document.getElementById("contractForm");
+    const loader = document.getElementById("loader");
+    const payBtn = document.getElementById("payBtn");
+    const amountInput = document.getElementById("amount");
+    const amountGroup = document.getElementById("amountGroup");
+    const chargeSection = document.getElementById("chargeSection");
+    const feeSummary = document.getElementById("feeSummary");
+    const currencyLabel = document.getElementById("currencyLabel");
+    const walletInlineBalance = document.getElementById("walletInlineBalance");
+
+    function showLoader(text = "Processing...") { loader.querySelector(".loading-text").textContent = text; loader.classList.add("active"); }
+    function hideLoader() { loader.classList.remove("active"); }
+
+    const buyerId = localStorage.getItem("ui");
+    if (!buyerId) { showToast("⚠️ Please log in first.","error"); setTimeout(() => window.location.href = "/auth", 1500); }
+
+    let buyerEmail = null;
+    let walletBalance = 0;
+    let walletCurrency = "₦";
+
+    async function getUserInfo() {
+      try {
+        const res = await fetch(`/api/users/${buyerId}`, { credentials: "include" });
+        const data = await res.json();
+        if (data.success && data.user) {
+          buyerEmail = data.user.email;
+          walletBalance = data.user.wallet?.balance || 0;
+          const userCurrency = data.user.currency || "NGN";
+          if (userCurrency === "USDT") walletCurrency = "USDT";
+          else if (userCurrency === "USD") walletCurrency = "$";
+          else if (userCurrency === "GBP") walletCurrency = "£";
+          else if (userCurrency === "EUR") walletCurrency = "€";
+          else walletCurrency = "₦";
+          walletInlineBalance.textContent = walletCurrency === "USDT" ? `${walletBalance.toFixed(2)} USDT` : `${walletCurrency}${walletBalance.toFixed(2)}`;
+        } else throw new Error("Invalid user data");
+      } catch (err) {
+        console.error("❌ Error fetching user:", err);
+        localStorage.removeItem("ui");
+        setTimeout(() => window.location.href = "/auth", 2000);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => { payBtn.disabled = true; await getUserInfo(); payBtn.disabled = false; });
+
+    function setupDropdown(id, callback) {
+      const dropdown = document.getElementById(id);
+      const selected = dropdown.querySelector(".dropdown-selected");
+      const options = dropdown.querySelector(".dropdown-options");
+      selected.addEventListener("click", () => { dropdown.classList.toggle("active"); });
+      options.querySelectorAll("div").forEach(opt => { opt.addEventListener("click", () => { const value = opt.dataset.value; const label = opt.textContent; selected.textContent = label; dropdown.classList.remove("active"); callback(value); }); });
+      document.addEventListener("click", (e) => { if (!dropdown.contains(e.target)) dropdown.classList.remove("active"); });
+    }
+
+    let paymentMethod = "";
+    let chargePayer = "";
+
+    setupDropdown("paymentDropdown", (value) => {
+      paymentMethod = value;
+      if (!value) { amountGroup.style.display = "none"; chargeSection.style.display = "none"; feeSummary.style.display = "none"; }
+      else { amountGroup.style.display = "block"; currencyLabel.textContent = value === "wallet" ? (walletCurrency==="USDT"?"USDT":walletCurrency) : (value==="usdt"?"USDT":"₦"); }
+    });
+
+    setupDropdown("chargeDropdown", (value) => { chargePayer = value; updateFeeSummary(); });
+
+    amountInput.addEventListener("input", () => {
+      const value = parseFloat(amountInput.value);
+      if (value>0) { chargeSection.style.display="block"; updateFeeSummary(); } else { chargeSection.style.display="none"; feeSummary.style.display="none"; }
+    });
+
+    function updateFeeSummary() {
+      const amount = parseFloat(amountInput.value)||0;
+      const method = paymentMethod;
+      const isUSDT = method==="usdt" || walletCurrency==="USDT";
+      if(!amount||!chargePayer) return (feeSummary.style.display="none");
+      const fee = amount*0.06;
+      let total = amount;
+      if(chargePayer==="buyer") total = amount+fee;
+      else if(chargePayer==="split") total = amount+fee/2;
+      const formatAmount = (amt) => isUSDT ? `${amt.toFixed(2)} USDT` : `${walletCurrency}${amt.toFixed(2)}`;
+      let text = `<strong>SafeNode Fee (6%):</strong> ${formatAmount(fee)}<br>`;
+      if(chargePayer==="buyer") text+=`You pay <strong>${formatAmount(total)}</strong> total.`;
+      else if(chargePayer==="seller") text+=`Seller receives <strong>${formatAmount(amount-fee)}</strong>.`;
+      else text+=`Buyer pays <strong>${formatAmount(amount+fee/2)}</strong>, seller contributes <strong>${formatAmount(fee/2)}</strong>.`;
+      feeSummary.innerHTML = text;
+      feeSummary.style.display="block";
+    }
+
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      if(!buyerEmail) return showToast("Please wait, verifying account...","error");
+      const title=document.getElementById("title").value.trim();
+      const description=document.getElementById("description").value.trim();
+      const amount=parseFloat(amountInput.value);
+      if(!paymentMethod||!amount||!chargePayer) return showToast("Please fill all required fields.","error");
+      if(paymentMethod==="wallet" && amount>walletBalance) return showToast(`Insufficient wallet balance (${walletCurrency}${walletBalance.toFixed(2)} available).`,'error');
+      showLoader("Creating contract...");
+      payBtn.disabled=true;
+      try{
+        const payload={title,description,amount,buyerEmail,paymentMethod,chargePayer};
+        const res=await fetch(`/api/contracts/create`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const data=await res.json();
+        hideLoader();
+        payBtn.disabled=false;
+        if(data.success){
+          if(paymentMethod==="wallet"){window.location.href=`/success?id=${data.contractId}`;}
+          else if(data.paymentUrl){window.location.href=data.paymentUrl;}
+        } else showToast(data.message || "Failed to create contract.",'error');
+      } catch(err){ hideLoader(); payBtn.disabled=false; console.error("Network error:",err); showToast("⚠️ Cannot reach server. Try again.",'error'); }
+    });
+  </script>
+</body>
+</html>

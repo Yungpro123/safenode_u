@@ -291,7 +291,7 @@ await seller.save();
   sellerName: contract.sellername,
   contractTitle: contract.title,
   amount: contract.amount,
-  dashboardLink: `http://localhost:5000/dashboard/`
+  dashboardLink: `${FRONTEND_URL}/dashboard/`
 });
     // ✅ Mark contract completed
     

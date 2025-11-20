@@ -189,7 +189,7 @@
        =========================== */
 
     /* Keep the original .settings-section selector but upgrade visuals */
-    .settings-section{display:none;padding:28px 18px;background:transparent;min-height:calc(100vh - 60px);}
+    .settings-section{display:none;;background:transparent;min-height:calc(100vh - 60px); margin-top:10px}
 
     /* New internal container that matches dashboard cards */
     .settings-wrapper {
