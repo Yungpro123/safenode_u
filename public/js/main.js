@@ -1,8 +1,8 @@
 // main.js — SafeNode Dashboard (currency detection + buyer/seller logic + all escrows)
 document.addEventListener("DOMContentLoaded", () => {
   const userId = localStorage.getItem("ui");
-  const API_BASE = "http://localhost:5000/api/dashboard";
-
+  const API_BASE = "/api/dashboard";
+const API_BASEE = "/";
   if (!userId) {
     console.log("...")
     return;
@@ -50,9 +50,6 @@ let sellernamme = null;
     const amount = safeNum(c.amount);
     const buyer = c.buyerEmail || c.buyer || "N/A";
     const buyername = c.buyername || c.buyer || "N/A";
-    const sellername = c.sellername || c.seller || "Not yet accepted";
-    buyernamme = buyername
-    sellernamme = sellername
     const seller = c.sellerEmail || c.seller || "Not yet accepted";
     const status = (c.status || "Pending").toLowerCase();
     const created = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "";
@@ -87,7 +84,7 @@ let sellernamme = null;
             <div class="escrow-title">${escapeHtml(title)}</div>
             <div class="escrow-meta">
               ${symbol === "₦" ? "₦" + " " +Number(amount).toLocaleString() : Number(amount).toLocaleString() +""+ "USDT"}
-              • Buyer: ${escapeHtml(buyername)} • Seller: ${escapeHtml(sellername)}
+              • Buyer: ${escapeHtml(c.buyername)} • Seller: ${escapeHtml(c.sellername)}
             </div>
           </div>
         </div>
@@ -110,8 +107,8 @@ let sellernamme = null;
           amount: newCard.dataset.amount,
           currency: newCard.dataset.currency,
           paymentMethod: newCard.dataset.paymentmethod,
-          buyername:buyernamme,
-          sellername:sellernamme,
+          buyername:newCard.dataset.buyername,
+          sellername:newCard.dataset.sellername,
           buyer: newCard.dataset.buyer,
           seller: newCard.dataset.seller,
           started: newCard.dataset.started,
@@ -134,32 +131,41 @@ let sellernamme = null;
       if (!res.ok) throw new Error(data.message || "Failed to release funds");
       await loadDashboard();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message,"error");
     }
   }
 
   // 🧾 API: Request Funds (seller)
-  async function requestFunds(contractId) {
-    try {
-      const res = await fetch(`${API_BASE}/request-funds`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", userid: userId },
-        body: JSON.stringify({ contractId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to request funds");
-      alert(data.message || "Request sent to buyer!");
-    } catch (err) {
-      alert(err.message);
-    }
+async function requestFunds(contractId) {
+  try {
+    const res = await fetch(`/api/contracts/request/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: contractId, 
+        ui: userId// seller’s email (so backend knows who’s requesting)
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || "Failed to request funds");
+
+    showToast(data.message || "Request sent to buyer!", "success");
+  } catch (err) {
+    showToast(err.message, "error");
   }
+}
 
   // 🧾 API: Dispute
   async function initiateDispute(contractId, title, reason) {
     try {
+      showToast("Dispute successfully initiated")
       window.location.href = `/dispute?contract=${encodeURIComponent(contractId)}`; // ✅ redirect with contract ID
     } catch (err) {
-      alert(err.message);
+      showToast(err.message,"sucess");
     }
   }
 
@@ -239,7 +245,7 @@ let sellernamme = null;
       });
     if (isSeller)
       document.getElementById("requestFundsBtn")?.addEventListener("click", () => {
-        if (confirm(`Request funds for "${data.title}"?`)) requestFunds(data.id);
+    requestFunds(data.id);
       });
 
     document.getElementById("initiateDisputeBtn")?.addEventListener("click", async () => {
@@ -292,7 +298,7 @@ walletBalanceE.textContent = displayBalance;
         completedCount,
       });
 
-      const sortOrder = ["accepted","funded", "completed", "resolved"];
+      const sortOrder = ["accepted","funded", "completed","resolved" ,"pending"];
       contracts.sort((a, b) => sortOrder.indexOf(a.status?.toLowerCase()) - sortOrder.indexOf(b.status?.toLowerCase()));
 
 if (escrowListEl) {
@@ -309,7 +315,7 @@ if (escrowListEl) {
     ${
       contracts.length > 4
         ? `<div style="margin-top:20px;text-align:center;">
-             <button id="viewAllEscrowBtn" class="view-escrow-btn">View All Escrows</button>
+             <button id="viewAllEscrowBtn" class="view-escrow-btn">View All Contracts</button>
            </div>`
         : ""
     }
@@ -358,7 +364,7 @@ panelContent.innerHTML = `
 `;
 
 // ✅ Activate filter functionality
-const filters = ["All", "Accepted", "Funded", "Completed"];
+const filters = ["All", "Accepted", "Funded", "Completed", "resolved"];
 const wrap = document.getElementById("filterWrap");
 const container = document.getElementById("allEscrowsContainer");
 
@@ -427,7 +433,6 @@ function openEscrowPanel(data) {
       actionBtnHtml = `
         <button class="btn-primary" id="releaseFundsBtn">Release Funds</button>
         <button class="btn-secondary" id="initiateDisputeBtn">Initiate Dispute</button>
-
       `;
     } else if (isSeller) {
       actionBtnHtml = `
@@ -442,11 +447,10 @@ function openEscrowPanel(data) {
     `;
   } else if (status === "completed") {
     actionBtnHtml = `<button class="btn-primary" id="downloadReceiptBtn">Download Receipt</button>`;
+  } else if (status === "disputed") {
+    actionBtnHtml = `<button class="btn-primary" id="initiateDisputeBtn">View Dispute</button>`;
   }
   else if (status === "resolved") {
-    actionBtnHtml = `<button class="btn-primary" id="downloadReceiptBtn">Download Receipt</button>`;
-  } 
-  else if (status === "disputed") {
     actionBtnHtml = `<button class="btn-primary" id="initiateDisputeBtn">View Dispute</button>`;
   }
 
@@ -507,7 +511,7 @@ function openEscrowPanel(data) {
 
   if (document.getElementById("requestFundsBtn")) {
     document.getElementById("requestFundsBtn").addEventListener("click", () => {
-      if (confirm(`Request funds for "${data.title}"?`)) requestFunds(data.id);
+   requestFunds(data.id);
     });
   }
 
@@ -521,15 +525,31 @@ function openEscrowPanel(data) {
   if (document.getElementById("copyLinkBtn")) {
     document.getElementById("copyLinkBtn").addEventListener("click", () => {
       navigator.clipboard.writeText(window.location.origin + `/accept.html?contract=${data.id}`);
-      alert("Link copied to clipboard!");
+      showToast("Link copied to clipboard!","success");
     });
   }
+if (document.getElementById("cancelOrderBtn")) {
+  document.getElementById("cancelOrderBtn").addEventListener("click", async () => {
+    try {
+      const res = await fetch(`/api/contracts/cancel/${data.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", userid: userId },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || "Failed to cancel contract");
 
-  if (document.getElementById("cancelOrderBtn")) {
-    document.getElementById("cancelOrderBtn").addEventListener("click", () => {
-      alert("Order cancelled successfully! (Demo)");
-    });
-  }
+      showToast(result.message || "Contract cancelled successfully!", "success");
+      
+
+      // Close the detail panel
+      document.getElementById("panelOverlay").classList.remove("visible");
+      document.getElementById("detailPanel").classList.remove("open");
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  });
+}
+  
 
   if (document.getElementById("downloadReceiptBtn")) {
     document.getElementById("downloadReceiptBtn").addEventListener("click", () => {
