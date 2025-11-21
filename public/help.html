@@ -4,10 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SafeNode — Help Center</title>
-      <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" sizes="32x32" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     * {
       box-sizing: border-box;
@@ -16,12 +15,12 @@
 
     body {
       margin: 0;
-      background: #f9fbfa;
+      background: #f8fbf9;
       color: #1f2937;
       display: flex;
-      font-weight: 500;
       flex-direction: column;
       min-height: 100vh;
+      font-weight: 500;
     }
 
     header {
@@ -39,51 +38,39 @@
     header .logo {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     header .logo img {
-      width: 34px;
-      height: 34px;
+      width: 38px;
+      height: 38px;
       border-radius: 8px;
     }
 
     header .logo span {
-      font-size: 22px;
+      font-size: 23px;
       font-weight: 700;
       color: #00a86b;
     }
 
-    header nav a {
-      margin-left: 25px;
-      text-decoration: none;
-      color: #374151;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    header nav a:hover {
-      color: #00a86b;
-    }
-
     .hero {
-      background: linear-gradient(135deg, #e8f9f0, #f3faff);
+      background: linear-gradient(135deg, #e6f7ef, #f4fbff);
       padding: 80px 10%;
       text-align: center;
     }
 
     .hero h1 {
-      font-size: 38px;
+      font-size: 42px;
       color: #062f24;
-      margin-bottom: 15px;
+      margin-bottom: 18px;
       font-weight: 700;
     }
 
     .hero p {
-      color: #4b5563;
-      font-size: 16px;
-      max-width: 600px;
-      margin: 0 auto 30px;
+      color: #475569;
+      font-size: 17px;
+      max-width: 700px;
+      margin: 0 auto 35px;
     }
 
     .search-box {
@@ -93,7 +80,7 @@
       align-items: center;
       border-radius: 10px;
       box-shadow: 0 3px 15px rgba(0,0,0,0.05);
-      max-width: 500px;
+      max-width: 520px;
       margin: 0 auto;
       padding: 8px 12px;
     }
@@ -110,43 +97,34 @@
     main {
       flex: 1;
       padding: 60px 10%;
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
     .section-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
     }
 
     .section {
       background: white;
       border-radius: 14px;
-      padding: 25px 25px 30px;
+      padding: 30px 28px 35px;
       box-shadow: 0 3px 15px rgba(0,0,0,0.05);
       transition: transform 0.3s;
+      border-top: 4px solid #00a86b;
     }
 
     .section:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
     }
 
     .section h2 {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       color: #00a86b;
       margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section h2::before {
-      content: "•";
-      color: #00a86b;
-      font-weight: bold;
-      font-size: 24px;
-      line-height: 0;
+      font-weight: 600;
     }
 
     .section p, .section ul {
@@ -168,9 +146,9 @@
       background: #0b513f;
       color: #c7dcd4;
       text-align: center;
-      padding: 30px 10%;
+      padding: 35px 10%;
       font-size: 14px;
-      margin-top: 40px;
+      margin-top: 60px;
     }
 
     footer a {
@@ -183,91 +161,186 @@
       text-decoration: underline;
     }
 
+    /* FAQ expanders */
+    details {
+      background: white;
+      border-radius: 10px;
+      padding: 15px 18px;
+      margin-bottom: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #0b513f;
+      outline: none;
+    }
+
     @media (max-width: 600px) {
       header { flex-direction: column; gap: 10px; padding: 20px; }
-      .hero h1 { font-size: 30px; }
       .hero { padding: 60px 5%; }
+      .hero h1 { font-size: 32px; }
       main { padding: 40px 5%; }
     }
   </style>
 </head>
+
 <body>
 
-  <header>
-    <div class="logo">
-      <img src="logo.png" alt="SafeNode Logo" />
-      <span>SafeNode</span>
+<header>
+  <div class="logo">
+    <img src="https://i.ibb.co/bRF2crW9/file-0000000042b061f4bc562118dc9e4f44.png" alt="SafeNode Logo">
+    <span>SafeNode</span>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>SafeNode Help Center</h1>
+  <p>Your complete guide to using SafeNode for secure escrow payments. Explore documentation, learn best practices, and get quick help whenever you need it.</p>
+</section>
+
+<main>
+
+  <div class="section-grid">
+
+    <div class="section">
+      <h2>About SafeNode</h2>
+      <p>SafeNode is a secure escrow platform that protects both buyers and sellers by holding funds until the transaction is completed successfully. Our mission is to make online transactions safer, faster, and more transparent.</p>
+      <ul>
+        <li>Escrow protection for both parties</li>
+        <li>Supports NGN and USDT payments</li>
+        <li>Fast resolution in case of disputes</li>
+        <li>Transparent contract and transaction history</li>
+      </ul>
     </div>
-  </header>
 
-  <section class="hero">
-    <h1>SafeNode Help Center</h1>
-    <p>Everything you need to know about using SafeNode for secure escrow transactions.</p>
-
-  </section>
-
-  <main>
-    <div class="section-grid">
-      <div class="section">
-        <h2>About SafeNode</h2>
-        <div>SafeNode is a secure escrow payment system that protects buyers and sellers during online transactions. Funds are held safely until both sides are satisfied with the outcome.</div>
-      </div>
-
-      <div class="section">
-        <h2>Getting Started</h2>
-        <ul>
-          <li>Register your account and verify your email.</li>
-          <li>Access your SafeNode wallet to deposit or withdraw funds.</li>
-          <li>Supported methods: Paystack (NGN) and USDT on BNB network.</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <h2>Creating Contracts</h2>
-        <ul>
-          <li>Go to your dashboard and click “Create Contract”.</li>
-          <li>Fill in contract details and choose who pays the service charge.</li>
-          <li>Buyer funds the contract; SafeNode holds funds securely.</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <h2>Disputes & Resolution</h2>
-        <p>If issues arise, open a dispute from your contract page. Provide evidence and messages — our team reviews and ensures a fair outcome.</p>
-      </div>
-
-      <div class="section">
-        <h2>Security & Passwords</h2>
-        <ul>
-          <li>Use a strong password and never share it with anyone.</li>
-          <li>SafeNode will never ask for your credentials.</li>
-          <li>Reset passwords through the “Forgot Password” option.</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <h2>Fees & Transactions</h2>
-        <p>SafeNode charges a 6% service fee per escrow transaction, which can be paid by the buyer, seller, or split evenly. No hidden costs or extra deductions.</p>
-      </div>
-
-      <div class="section">
-        <h2>Contact & Support</h2>
-        <p>Need more help? Reach out to our support team:</p>
-        <ul>
-          <li>Email: <a href="mailto:support@safenode.com">support@safenode.com</a></li>
-          <li>Live chat: Available in your dashboard</li>
-          <li>Response time: Within 24 hours (Mon–Fri)</li>
-        </ul>
-      </div>
+    <div class="section">
+      <h2>Getting Started</h2>
+      <ul>
+        <li>Create and verify your SafeNode account.</li>
+        <li>Set up your NGN or USDT wallet.</li>
+        <li>Fund your wallet using supported payment methods.</li>
+        <li>Start creating or joining contracts immediately.</li>
+      </ul>
+      <p>If you're new to escrow, SafeNode guides you step-by-step.</p>
     </div>
-  </main>
 
-  <footer>
-    &copy; <span id="year"></span> SafeNode Escrow Services. All rights reserved.
-  </footer>
+    <div class="section">
+      <h2>Funding Your Wallet</h2>
+      <ul>
+        <li>NGN deposits supported through Paystack.</li>
+        <li>USDT deposits supported on BNB Smart Chain.</li>
+        <li>Withdrawals available anytime with minimal delay.</li>
+        <li>All transactions are monitored for security.</li>
+      </ul>
+    </div>
 
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
+    <div class="section">
+      <h2>Creating Contracts</h2>
+      <ul>
+        <li>Choose contract type: product, service, digital goods, or custom.</li>
+        <li>Set deadlines, expectations, and payment responsibility.</li>
+        <li>Buyer deposits funds which are locked until completion.</li>
+        <li>Seller receives funds only after approval.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Disputes & Resolution</h2>
+      <p>If an issue arises, SafeNode offers a fair, structured process:</p>
+      <ul>
+        <li>Open a dispute within the contract page.</li>
+        <li>Upload evidence such as screenshots, receipts, or messages.</li>
+        <li>SafeNode reviews materials from both sides.</li>
+        <li>A final decision is made based on evidence and policy.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Security & Passwords</h2>
+      <ul>
+        <li>Use strong, unique passwords for your account.</li>
+        <li>Enable two-step verification when available.</li>
+        <li>Never share credentials with anyone.</li>
+        <li>Reset forgotten passwords instantly via your email.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Fees & Transactions</h2>
+      <p>SafeNode charges a 6 percent service fee per escrow transaction. The fee may be assigned to the buyer, seller, or split evenly. No hidden charges, no additional deductions.</p>
+    </div>
+
+    <div class="section">
+      <h2>Contact & Support</h2>
+      <p>We are here to help with any questions:</p>
+      <ul>
+        <li>Email: support@safenode.com</li>
+        <li>Live chat support available inside dashboard</li>
+        <li>Response time: Within 24 hours (Monday–Friday)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <br><br>
+
+  <h2 style="color:#00a86b; font-size:24px; margin-bottom:20px;">Frequently Asked Questions</h2>
+
+  <details>
+    <summary>Why is my transaction pending?</summary>
+    <p>Transactions may take a few minutes to process depending on network congestion or payment provider delays. Please wait up to 15 minutes before contacting support.</p>
+  </details>
+
+  <details>
+    <summary>Can I cancel a contract after funding it?</summary>
+    <p>Yes, contracts can be canceled if both buyer and seller agree. If a dispute exists, cancellation will follow SafeNode's resolution policies.</p>
+  </details>
+
+  <details>
+    <summary>How long do withdrawals take?</summary>
+    <p>NGN withdrawals through Paystack usually process within minutes. USDT withdrawals depend on BNB Smart Chain network speed.</p>
+  </details>
+
+  <details>
+    <summary>Is SafeNode available outside Nigeria?</summary>
+    <p>Yes, anyone can use SafeNode for USDT-based transactions. NGN payments are currently limited to supported regions.</p>
+  </details>
+
+  <details>
+    <summary>What happens if either party fails to respond?</summary>
+    <p>SafeNode may manually review the transaction and release funds based on available evidence and platform policies.</p>
+  </details>
+
+  <br><br>
+
+  <h2 style="color:#00a86b; font-size:24px; margin-bottom:20px;">Troubleshooting</h2>
+
+  <details>
+    <summary>I deposited USDT, but it's not showing.</summary>
+    <p>Confirm that you sent USDT on the correct network (BNB Smart Chain). Sending funds on the wrong chain can result in permanent loss.</p>
+  </details>
+
+  <details>
+    <summary>I can't log into my account.</summary>
+    <p>Use the "Forgot Password" option or contact support if you no longer have access to your email.</p>
+  </details>
+
+  <details>
+    <summary>The other party isn't responding.</summary>
+    <p>Open a dispute within the contract. SafeNode will take over and review the matter.</p>
+  </details>
+
+</main>
+
+<footer>
+  &copy; <span id="year"></span> SafeNode Escrow Services. All rights reserved.
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
 </body>
 </html>

@@ -42,15 +42,15 @@ const API_BASEE = "/";
   if (c === "NGN") return "₦";
   return c;
 }
-let buyernamme = null ;
-let sellernamme = null; 
+
   // 🧩 Build escrow card
   function buildEscrowCard(c) {
     const title = c.title || "Untitled Contract";
     const amount = safeNum(c.amount);
     const buyer = c.buyerEmail || c.buyer || "N/A";
-    const buyername = c.buyername || c.buyer || "N/A";
+    const buyername = c.buyername || "N/A";
     const seller = c.sellerEmail || c.seller || "Not yet accepted";
+    const sellername = c.sellername || "Not yet accepted";
     const status = (c.status || "Pending").toLowerCase();
     const created = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "";
     const symbol = getCurrencySymbol(c.currency);
@@ -77,6 +77,8 @@ let sellernamme = null;
            data-paymentmethod="${c.paymentMethod || "paystack"}"
            data-buyer="${escapeHtml(buyer)}"
            data-seller="${escapeHtml(seller)}"
+           data-sellername="${escapeHtml(sellername)}"
+           data-buyername="${escapeHtml(buyername)}"
            data-started="${escapeHtml(created)}"
            data-status="${escapeHtml(status)}">
         <div class="escrow-card-content">
@@ -84,7 +86,7 @@ let sellernamme = null;
             <div class="escrow-title">${escapeHtml(title)}</div>
             <div class="escrow-meta">
               ${symbol === "₦" ? "₦" + " " +Number(amount).toLocaleString() : Number(amount).toLocaleString() +""+ "USDT"}
-              • Buyer: ${escapeHtml(c.buyername)} • Seller: ${escapeHtml(c.sellername)}
+              • Buyer: ${escapeHtml(c.buyername)} • Seller: ${escapeHtml(sellername)}
             </div>
           </div>
         </div>
@@ -419,6 +421,8 @@ function openEscrowPanel(data) {
   const buyerEmail = (data.buyer || "").toLowerCase();
   const sellerEmail = (data.seller || "").toLowerCase();
   const me = (currentUserEmail || "").toLowerCase();
+  const sellername = data.sellername
+  const buyername = data.buyername
 
   const isBuyer = me === buyerEmail;
   const isSeller = me === sellerEmail;

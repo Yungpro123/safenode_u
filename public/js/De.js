@@ -70,8 +70,8 @@
         </div>
 
         <div class="sn-actions">
+     <button class="sn-btn ghost" id="sn-deposit-cancel">Cancel</button>
           <button class="sn-btn primary" id="sn-deposit-confirm">Continue</button>
-          <button class="sn-btn ghost" id="sn-deposit-cancel">Cancel</button>
         </div>
 
         <div class="sn-foot">
