@@ -57,8 +57,6 @@ exports.registerUser = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ success: false, message: "Email already registered." });
-if (!existingUser)
-      return res.status(400).json({ success: false, message: "User not found." });
 
     const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
     const userCurrency = currency || (country?.toLowerCase() === "nigeria" ? "NGN" : "USDT");
@@ -175,6 +173,8 @@ exports.loginUser = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) return res.json({ success: false, message: "Invalid credentials." });
+    if (!user)
+      return res.status(400).json({ success: false, message: "User not found." });
 
     const passwordHash = crypto.createHash("sha256").update(password).digest("hex");
     if (user.password !== passwordHash)
